@@ -201,7 +201,7 @@ switch ($Action) {
             foreach ($file in @('agent.cjs','manage.cjs','LICENSE')) { Copy-Item -LiteralPath (Join-Path $SourceRoot $file) -Destination $InstallRoot -Force }
             foreach ($file in @('manage.ps1','runner.cjs','entry.vbs','doctor.cjs','icon.ps1')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $InstallRoot 'windows') -Force }
         }
-        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.6'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
+        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.9'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
         $entry = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + (Join-Path $InstallRoot 'windows\manage.ps1') + '"'
         $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
         Write-Link $StartupLink $powershell ($entry + ' -Action start -FromShortcut') 'Codex Usage Card background agent'
@@ -284,6 +284,22 @@ switch ($Action) {
         # Keep a pinned normal Codex icon usable after removing this add-on.
         # Only links still pointing at our launcher are restored.
         $realApp = Find-App
+        # Explicit taskbar repair may retain the client's original shortcut name.
+        # Restore only pins that actually call this add-on's manager.
+        $taskbarDirectory=Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
+        if (Test-Path -LiteralPath $taskbarDirectory) {
+            foreach ($pin in Get-ChildItem -LiteralPath $taskbarDirectory -Filter '*.lnk' -File) {
+                $ownedPin=(New-Object -ComObject WScript.Shell).CreateShortcut($pin.FullName)
+                if (Test-OwnedLink $ownedPin) {
+                    $ownedPin.TargetPath=$realApp
+                    $ownedPin.Arguments=''
+                    $ownedPin.WorkingDirectory=Split-Path -Parent $realApp
+                    $ownedPin.Description='Codex'
+                    $ownedPin.IconLocation=(Join-Path (Split-Path -Parent $realApp) 'resources\chatgpt-app-dark.ico')+',0'
+                    $ownedPin.Save()
+                }
+            }
+        }
         foreach ($normalLink in $normalLinks) {
             if (Test-Path -LiteralPath $normalLink -PathType Leaf) {
                 $existingLink = (New-Object -ComObject WScript.Shell).CreateShortcut($normalLink)

@@ -1,12 +1,12 @@
 # Windows 长期维护指南
 
-长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.6`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
+长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.9`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
 
 ## 维护边界
 
 - 使用桌面 **Codex Usage Card** 启动，保留用户原有商店和任务栏启动入口。
 - 不增加重复开始菜单项，不为加载圆环强制退出或重启正在使用的客户端。
-- 图标直接复制目标客户端自带的透明白色 `chatgpt-app-dark.ico`；不重新绘制、改色或添加背景。已有任务栏项只允许修改图标属性。
+- 图标直接复制目标客户端自带的透明白色 `chatgpt-app-dark.ico`；不重新绘制、改色或添加背景。普通安装只修改图标；用户显式运行 RepairTaskbar.cmd 时，将唯一固定项恢复为桌面额度启动命令，保留实际分组 ID。
 - 不修改客户端安装包、应用清单或签名，不开放非回环调试端口，不启用自动更新。
 - 不提交或打包凭证、聊天内容、额度快照、本机安装清单、日志、临时文件或 Node 二进制。
 
@@ -18,7 +18,7 @@
 - Windows x64 ZIP、运行时独立复制和回归测试于 2026-10-31 验证。其他电脑、其他客户端版本及 ARM64 尚未实际验证。
 - 上游文档基线提交为 `f1cc976`，来源为 `Lorie7813/codex-usage-card`。
 - 运行代码来源为上游 `v0.9.4-beta.1` Release 的可读 `agent.cjs`；原 ZIP SHA-256 为 `e41cbb00fd01b785eb0cac73a946115a35dd2d9a2410c196ec7287ce4b1737f8`。此公开上游仓库主要保存文档，单独更新 Git 文档不等于更新了运行代码。
-- 首个 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.6.json)。
+- 首个 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.9.json)。
 
 ## 从哪里定位问题
 
@@ -80,3 +80,8 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/bundled-runtime.ps
 6. 提交源码、测试、文档和 Release 元数据。`dist/` 和下载包保持忽略；需要对外分发时将 ZIP 与校验文件放到 Release 附件或独立分发位置。
 
 上游新 Release 的运行文件应从其已核验的归档中取得，再与本分支的 Windows 改动比较。不要直接覆盖已验证的适配，也不要把文档仓库的无冲突合并视为功能验证。
+
+当前维护分支为 `codex/windows-maintenance`。`codex/windows-support` 停留在上游文档基线，没有独有 Windows 代码，可停止使用。
+任务栏修复使用 `RepairTaskbar.cmd` 显式执行：在唯一固定项中复用桌面图标和额度启动命令，保留分组 ID。不要恢复已撤回的窗口图标助手或绑定官方商店 ID。
+
+任务栏修复回归：`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/taskbar-repair.ps1`。需要已安装客户端、桌面额度入口和一个客户端固定项；测试只读取该固定项并在独立临时目录内验证副本，不改动真实任务栏。也可用 `-ClientShortcut` 指定客户端创建的测试快捷方式。

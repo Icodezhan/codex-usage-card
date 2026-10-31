@@ -30,6 +30,13 @@ README = """Codex Usage Card — Windows 安装包
 4. 保存工作并完全退出 Codex，包括系统托盘中的实例。
 5. 双击桌面 Codex Usage Card，等待约 5–15 秒显示额度圆环。
 
+任务栏（与本机已确认可用的恢复方式一致）
+1. 先通过桌面 Codex Usage Card 打开客户端。
+2. 右键这个运行窗口的任务栏图标，选择“固定到任务栏”；已经固定则跳过。
+3. 双击解压目录的 RepairTaskbar.cmd，恢复白色图标及额度启动命令。
+以后从该固定项启动即可显示额度。保留一个 Codex 固定项；如果有多个，本工具会停止而不猜测。
+升级安装也请运行一次 RepairTaskbar.cmd。安装器不会擅自改写原来的官方任务栏启动入口。
+
 使用说明
 - 仍须使用桌面 Codex Usage Card 启动；不支持从任意原始入口启动后自动加载。
 - 只添加这个桌面入口及隐藏的后台登录启动项，不添加重复开始菜单入口，不替换任务栏启动方式。
@@ -80,6 +87,18 @@ exit /b %RESULT%
     return text.replace("\n", "\r\n").encode("ascii")
 
 
+def repair_launcher() -> bytes:
+    text = r'''@echo off
+setlocal
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\.codex\addons\codex-usage-card\windows\icon.ps1" -RestoreQuotaLaunch
+set "RESULT=%ERRORLEVEL%"
+if not "%RESULT%"=="0" (echo Taskbar repair failed. Read the message above.) else (echo Taskbar icon and quota launcher restored.)
+pause
+exit /b %RESULT%
+'''
+    return text.replace("\n", "\r\n").encode("ascii")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--node", type=Path, required=True)
@@ -101,6 +120,7 @@ def main() -> None:
         "runtime/LICENSE": node_license.read_bytes(),
         "Install.cmd": launcher("install"),
         "Uninstall.cmd": launcher("uninstall"),
+        "RepairTaskbar.cmd": repair_launcher(),
         "Diagnose.cmd": launcher("doctor"),
         "README-安装说明.txt": README.format(version=VERSION, node_version=node_version).encode("utf-8"),
         "release.json": (json.dumps({
