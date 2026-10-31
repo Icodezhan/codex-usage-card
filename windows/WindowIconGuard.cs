@@ -8,9 +8,8 @@ using System.Threading;
 
 namespace CodexUsageCard {
     // Retains the HICON handles for as long as a target window uses them.
-    // No launch commands, app files, or user input are changed. For packaged
-    // windows without an explicit ID, bind the client's registered package ID
-    // (or inherited process ID) so Windows honours its taskbar icon property.
+    // Icon-only: never write AppUserModel.ID, RelaunchCommand, or
+    // RelaunchDisplayNameResource. Those properties affect taskbar launch routing.
     public sealed class WindowIconSession : IDisposable {
         private delegate bool EnumWindowProc(IntPtr window, IntPtr data);
         [DllImport("user32.dll")] private static extern bool EnumWindows(EnumWindowProc callback, IntPtr data);
@@ -43,17 +42,14 @@ namespace CodexUsageCard {
             public uint pid;
             public IntPtr small, large;
             public string taskbarIcon;
-            public string originalAppId, boundAppId;
         }
         private readonly Dictionary<IntPtr, Previous> previous = new Dictionary<IntPtr, Previous>();
         private readonly IntPtr smallIcon, largeIcon;
         private readonly string iconResource;
-        private readonly string inheritedAppId;
         public int Applied { get; private set; }
         public int WindowCount { get; private set; }
 
-        public WindowIconSession(string iconPath, string effectiveAppId = null) {
-            inheritedAppId = effectiveAppId;
+        public WindowIconSession(string iconPath) {
             iconResource = Path.GetFullPath(iconPath) + ",0";
             smallIcon = LoadImage(IntPtr.Zero, iconPath, 1, 32, 32, 0x10);
             largeIcon = LoadImage(IntPtr.Zero, iconPath, 1, 64, 64, 0x10);
@@ -94,9 +90,9 @@ namespace CodexUsageCard {
                 finally { PropVariantClear(ref value); }
             } finally { Marshal.ReleaseComObject(store); }
         }
-        private static void WriteProperty(IntPtr window, uint id, string icon) {
+        private static void WriteTaskbarIcon(IntPtr window, string icon) {
             IPropertyStore store = OpenProperties(window);
-            PropertyKey key = Key(id);
+            PropertyKey key = Key(3); // RelaunchIconResource only.
             PropVariant value = new PropVariant();
             if (icon != null) { value.type = 31; value.text = Marshal.StringToCoTaskMemUni(icon); }
             try {
@@ -126,14 +122,7 @@ namespace CodexUsageCard {
                     // its latest choice before applying the official white icon again.
                     if (small != smallIcon) { saved.small = small; WriteIcon(window, 0, smallIcon); Applied++; }
                     if (large != largeIcon) { saved.large = large; WriteIcon(window, 1, largeIcon); Applied++; }
-                    if (taskbar != iconResource) { saved.taskbarIcon = taskbar; WriteProperty(window, 3, iconResource); Applied++; }
-                    if (!String.IsNullOrEmpty(inheritedAppId) && String.IsNullOrEmpty(ReadProperty(window, 5))) {
-                        saved.originalAppId = ReadProperty(window, 5);
-                        // Set the icon before the ID, as required by the shell.
-                        WriteProperty(window, 5, inheritedAppId);
-                        saved.boundAppId = inheritedAppId;
-                        Applied++;
-                    }
+                    if (taskbar != iconResource) { saved.taskbarIcon = taskbar; WriteTaskbarIcon(window, iconResource); Applied++; }
                     count++;
                 } catch { /* Retry a busy or newly-created window on the next tick. */ }
                 return true;
@@ -152,9 +141,7 @@ namespace CodexUsageCard {
                 try {
                     if (ReadIcon(entry.Key, 0) == smallIcon) WriteIcon(entry.Key, 0, entry.Value.small);
                     if (ReadIcon(entry.Key, 1) == largeIcon) WriteIcon(entry.Key, 1, entry.Value.large);
-                    if (ReadProperty(entry.Key, 3) == iconResource) WriteProperty(entry.Key, 3, entry.Value.taskbarIcon);
-                    if (entry.Value.boundAppId != null && ReadProperty(entry.Key, 5) == entry.Value.boundAppId)
-                        WriteProperty(entry.Key, 5, entry.Value.originalAppId);
+                    if (ReadProperty(entry.Key, 3) == iconResource) WriteTaskbarIcon(entry.Key, entry.Value.taskbarIcon);
                 } catch { }
             }
             previous.Clear();
@@ -163,14 +150,6 @@ namespace CodexUsageCard {
     }
 
     public static class WindowIconGuard {
-        [DllImport("kernel32.dll", CharSet=CharSet.Unicode)]
-        private static extern int GetApplicationUserModelId(IntPtr process, ref uint length, StringBuilder id);
-        public static string EffectiveAppId(Process process) {
-            uint length = 0;
-            if (GetApplicationUserModelId(process.Handle, ref length, null) != 122 || length == 0) return null;
-            StringBuilder value = new StringBuilder((int)length);
-            return GetApplicationUserModelId(process.Handle, ref length, value) == 0 ? value.ToString() : null;
-        }
         private static void Status(string path, string state, int pid, int windows, int applied) {
             try {
                 string data = "{\"state\":\"" + state + "\",\"targetPid\":" + pid + ",\"windows\":" + windows + ",\"applied\":" + applied + ",\"checkedAt\":\"" + DateTime.UtcNow.ToString("o") + "\"}";
@@ -179,7 +158,7 @@ namespace CodexUsageCard {
                 if (File.Exists(path)) File.Replace(temp, path, null); else File.Move(temp, path);
             } catch { }
         }
-        public static void Run(int agentPid, int targetPid, string appPath, string iconPath, string statePath, string registeredAppId) {
+        public static void Run(int agentPid, int targetPid, string appPath, string iconPath, string statePath) {
             using (Process agent = Process.GetProcessById(agentPid))
             using (Process target = Process.GetProcessById(targetPid)) {
                 // Bind to actual process handles, not just reusable PID numbers.
@@ -196,9 +175,7 @@ namespace CodexUsageCard {
                     if (!owns) return;
                     try {
                         int applied = 0;
-                        string identity = EffectiveAppId(target);
-                        if (String.IsNullOrEmpty(identity)) identity = registeredAppId;
-                        using (WindowIconSession session = new WindowIconSession(iconPath, identity)) {
+                        using (WindowIconSession session = new WindowIconSession(iconPath)) {
                             while (!agent.HasExited && !target.HasExited) {
                                 session.Update(targetPid);
                                 applied = session.Applied;

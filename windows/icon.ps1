@@ -28,11 +28,16 @@ function Set-UsageCardTaskbarIcon([string]$AppPath, [string]$IconLocation) {
         $item = $shellFolder.ParseName($file.Name)
         $sameAppId = $appId -and $item -and ($item.ExtendedProperty('System.AppUserModel.ID') -eq $appId)
         if ($shortcut.TargetPath -ine $AppPath -and !$sameAppId) { continue }
-        $before = @($shortcut.TargetPath, $shortcut.Arguments, $shortcut.WorkingDirectory, $shortcut.Description) | ConvertTo-Json -Compress
+        $before = @($shortcut.TargetPath, $shortcut.Arguments, $shortcut.WorkingDirectory, $shortcut.Description,
+            $item.ExtendedProperty('System.AppUserModel.ID'), $item.ExtendedProperty('System.AppUserModel.RelaunchCommand'),
+            $item.ExtendedProperty('System.AppUserModel.RelaunchDisplayNameResource')) | ConvertTo-Json -Compress
         $shortcut.IconLocation = $IconLocation
         $shortcut.Save()
         $saved = $shell.CreateShortcut($file.FullName)
-        $after = @($saved.TargetPath, $saved.Arguments, $saved.WorkingDirectory, $saved.Description) | ConvertTo-Json -Compress
+        $savedItem = $shellFolder.ParseName($file.Name)
+        $after = @($saved.TargetPath, $saved.Arguments, $saved.WorkingDirectory, $saved.Description,
+            $savedItem.ExtendedProperty('System.AppUserModel.ID'), $savedItem.ExtendedProperty('System.AppUserModel.RelaunchCommand'),
+            $savedItem.ExtendedProperty('System.AppUserModel.RelaunchDisplayNameResource')) | ConvertTo-Json -Compress
         if ($before -cne $after) { throw 'Unexpected change to taskbar launch properties.' }
         Notify-UsageCardIcon $file.FullName
         Write-Output ('Updated taskbar icon only: ' + $file.FullName)

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.4-windows.8 (undo taskbar launch-routing regression, 2026-10-31)
+
+- Remove windows.7's official window application-ID binding. The icon helper now writes only small/large icons and the icon resource; application ID, relaunch command and relaunch name are untouched.
+- Add read-only pinned-route diagnostics and regression coverage that verifies the desktop/fixed-entry command still reaches the quota launch script.
+- Existing incorrect pins created by windows.7 need a one-time unpin/re-pin from the desktop Codex Usage Card shortcut; the installer does not repurpose official client pins.
+- Withdraw windows.7. Record that full client shutdown/taskbar cold-start has not been automated against the active client.
+
 ## 0.9.4-windows.7 (running taskbar icon fix, 2026-10-31)
 
 - Synchronize official transparent white small/large icons and taskbar icon resources on actual client windows, including machines without a pinned `.lnk`.

@@ -1,6 +1,6 @@
 # Windows 长期维护指南
 
-长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.7`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
+长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.8`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
 
 ## 维护边界
 
@@ -20,6 +20,7 @@
 - 运行代码来源为上游 `v0.9.4-beta.1` Release 的可读 `agent.cjs`；原 ZIP SHA-256 为 `e41cbb00fd01b785eb0cac73a946115a35dd2d9a2410c196ec7287ce4b1737f8`。此公开上游仓库主要保存文档，单独更新 Git 文档不等于更新了运行代码。
 - 首个 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.6.json)。
 - `0.9.4-windows.7` 补齐无固定 `.lnk` 的运行窗口图标同步；2026-10-31 验证了测试窗口、主题重设、新窗口、退出恢复及当前实际客户端窗口。其他电脑仍需安装新包后核对。
+- `windows.7` 随后发现固定任务栏后重新启动丢失额度的回归：设置官方窗口 ID 会改变 Shell 的固定目标选择，而只核对 `RelaunchCommand` 没变不足以证明启动行为没变。此版已撤回；`windows.8` 删除 ID 绑定并增加固定项启动命令检查。完整冷启动必须在可关闭客户端的专用环境另测，不能用“已有进程未重启”替代。
 
 ## 从哪里定位问题
 
@@ -28,7 +29,7 @@
 - `windows/runner.cjs`：命名管道防重复实例、状态文件、停止请求和代理生命周期。
 - `windows/doctor.cjs`：读取真实额度的最小诊断；不输出账号 ID、凭证或原始响应。
 - `windows/icon.ps1`：读取官方图标，只修改桌面与匹配任务栏项的图标属性。
-- `windows/window-icon.ps1` / `WindowIconGuard.cs`：保持实际运行窗口的大小图标和任务栏资源。助手绑定代理与客户端的进程句柄，保留原有图标用于退出恢复；使用当前客户端的官方应用 ID，不修改启动命令或应用包。
+- `windows/window-icon.ps1` / `WindowIconGuard.cs`：保持实际运行窗口的大小图标和任务栏资源。助手绑定代理与客户端的进程句柄，保留原图标用于退出恢复。只写图标，不写应用 ID、重启命令或显示名，也不修改应用包。
 - `scripts/package_windows.py`：按明确文件清单生成 ZIP、安装/诊断/卸载命令、运行时及许可证、文件摘要。
 - `tests/`：额度/账号切换/本地连接限制测试、真实浏览器渲染、已安装 Windows 入口和自带运行时测试。
 

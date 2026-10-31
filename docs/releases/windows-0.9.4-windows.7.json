@@ -1,6 +1,9 @@
 {
   "product": "Codex Usage Card",
   "version": "0.9.4-windows.7",
+  "distribution_status": "withdrawn",
+  "withdrawal_reason": "Binding windows to the official app ID affected taskbar pin launch routing. Reopening a newly pinned official entry could omit the usage-card startup path.",
+  "replacement": "0.9.4-windows.8",
   "platform": "windows",
   "architecture": "x64",
   "archive": "CodexUsageCard-Windows-0.9.4-windows.7-x64.zip",

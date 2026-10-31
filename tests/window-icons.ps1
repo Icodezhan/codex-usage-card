@@ -45,6 +45,7 @@ try {
     [Windows.Forms.Application]::DoEvents()
     $beforeId=[CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,5)
     $beforeCommand=[CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,2)
+    $beforeName=[CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,4)
     $targetPath=(Get-Process -Id $PID).Path
     $arguments='-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+(Join-Path $RuntimeRoot 'windows\window-icon.ps1')+'" -AgentPid '+$parent.Id+' -TargetPid '+$PID+' -AppPath "'+$targetPath+'" -IconPath "'+$officialIcon+'" -StatePath "'+$statePath+'"'
     $helper=Start-Process -FilePath 'powershell.exe' -ArgumentList $arguments -WindowStyle Hidden -PassThru
@@ -60,6 +61,7 @@ try {
     Assert-WhiteIcon $first.Handle 1
     if([CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,3) -ne ($officialIcon+',0')){throw 'Taskbar group icon resource was not set'}
     if([CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,5) -ne $beforeId -or [CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,2) -ne $beforeCommand){throw 'Application identity or launch command was modified'}
+    if([CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,4) -ne $beforeName){throw 'Relaunch display name was modified'}
     # Simulate the client changing its native icon after startup and opening
     # another window. No taskbar .lnk exists for this fixture process.
     $first.Icon=[Drawing.SystemIcons]::Error
@@ -81,13 +83,7 @@ try {
         for($x=0;$x -lt $restored.Width;$x++){for($y=0;$y -lt $restored.Height;$y++){$p=$restored.GetPixel($x,$y);if($p.A -gt 245 -and ($p.R -ne 255 -or $p.G -ne 255 -or $p.B -ne 255)){$coloured=$true}}}
         if(!$coloured){throw 'Original client icon was not restored on shutdown'}
     }finally{$restored.Dispose()}
-    $binding=New-Object CodexUsageCard.WindowIconSession($officialIcon,'CodexUsageCard.IconFixture')
-    try {
-        $binding.Update($PID)
-        if([CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,5) -ne 'CodexUsageCard.IconFixture'){throw 'Inherited application identity was not bound for taskbar icon metadata'}
-        if([CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,2) -ne $beforeCommand){throw 'Binding an inherited ID changed the relaunch command'}
-    }finally{$binding.Dispose()}
-    if([CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,5) -ne $beforeId){throw 'Inherited application identity binding was not restored'}
+    if([CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,5) -ne $beforeId){throw 'Application identity changed during the icon helper lifetime'}
     'PASS: no pinned shortcut required; small/large icons, taskbar resource, theme reset, new window, identity preservation and clean restoration.'
 } finally {
     try{$parent.StandardInput.Close()}catch{}
