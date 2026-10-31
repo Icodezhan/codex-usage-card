@@ -1,6 +1,6 @@
 # Windows 安装与使用
 
-这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.6`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
+这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.7`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
 
 ## 环境与安装
 
@@ -21,6 +21,8 @@ node manage.cjs install
 安装器使用 `-ExecutionPolicy Bypass` 仅运行本次 PowerShell 子进程，不修改系统或用户的持久执行策略。快捷方式直接调用 Windows PowerShell 并使用 `-WindowStyle Hidden` 隐藏控制台，不再依赖 Windows Script Host 或 VBScript。安装时校验保存后的快捷方式目标和脚本路径，旧版 WSH 入口会自动迁移。启动失败时弹出具体错误，并在安装目录写入 `launcher-error.log`。
 
 桌面和已有任务栏图标统一使用客户端自带的透明背景白色 `chatgpt-app-dark.ico`，按原始字节复制，不重绘、不改色、不添加背景。任务栏仅修改图标属性，保留原始启动目标和参数。卸载时图标路径恢复到客户端自己的资源文件。
+
+`0.9.4-windows.7` 额外同步运行窗口的大小图标和任务栏 `RelaunchIconResource`。旧版仅在安装时修改存在的任务栏 `.lnk`，没有固定文件或客户端重设图标时会漏掉。新的隐藏图标助手只针对通过额度入口打开的客户端，随代理或客户端退出而停止，并恢复先前的窗口图标。客户端窗口没有显式分组 ID 时，会使用它的实际进程应用 ID，或当前安装包注册的官方 ID，以便 Windows 应用任务栏图标属性；不会设置新的自定义 ID、启动命令或入口。无需先固定任务栏图标，也不会增加新的任务栏快捷方式。
 
 ## 首次启用及后续启动
 
@@ -71,6 +73,7 @@ CDP 调试端口可以执行客户端窗口中的 JavaScript，权限高于单�
 npm test
 npm run test:browser
 npm run test:windows
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/window-icons.ps1
 ```
 
 运行时只依赖 Node 自带模块和 Windows 组件，无需 `npm install`。浏览器测试使用本机 Chrome 或 Edge；`EDGE_BIN` 可覆盖浏览器路径。原始 macOS 发行和校验流程保持在上游文档与 Release 中。
