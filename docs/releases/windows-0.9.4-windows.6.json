@@ -32,9 +32,6 @@
     "other_client_versions_and_computers": "unverified"
   },
   "entry_mode": "desktop-launcher",
-  "subsequently_identified_issues": [
-    "Only existing pinned .lnk icon properties were updated; running-window/taskbar icons could differ on another machine. Fixed in 0.9.4-windows.7."
-  ],
   "arbitrary_entry_autoload": false,
   "automatic_updates": false,
   "includes_user_data": false,

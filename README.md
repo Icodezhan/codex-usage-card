@@ -1,6 +1,6 @@
 # Codex Usage Card
 
-> **本地 Windows 适配版（0.9.4-windows.8）**：通过桌面 **Codex Usage Card** 快捷方式启动 Codex 并显示额度圆环。此版撤销 `windows.7` 中会影响任务栏固定目标的官方应用 ID 绑定，图标助手只设置图标，不修改启动身份和重启命令。已用 `windows.7` 固定到任务栏的错误项，需要取消固定后重新固定桌面的 **Codex Usage Card** 一次。`dist/` 中的 Windows x64 ZIP 已包含 Node.js，完整解压后运行 `Install.cmd`。详见 [Windows 安装与使用](docs/windows.md)。下方原始说明描述上游 macOS Release。
+> **本地 Windows 适配版（0.9.4-windows.6）**：通过桌面 **Codex Usage Card** 快捷方式启动 Codex 并显示额度圆环。`dist/` 中的 Windows x64 ZIP 已包含 Node.js，可复制到其他电脑，完整解压后运行 `Install.cmd`。运行文件安装到 `.codex/addons/codex-usage-card`，经 Explorer 安装并验证真实物理路径。当前版本不支持任意原始入口启动后自动加载。详见 [Windows 安装与使用](docs/windows.md)。下方原始说明描述上游 macOS Release。
 
 Windows 长期维护分支：`codex/windows-maintenance`。兼容性定位、版本记录、测试和打包流程见 [Windows 维护指南](docs/windows-maintenance.md)。
 

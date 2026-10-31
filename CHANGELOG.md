@@ -1,19 +1,5 @@
 # Changelog
 
-## 0.9.4-windows.8 (undo taskbar launch-routing regression, 2026-10-31)
-
-- Remove windows.7's official window application-ID binding. The icon helper now writes only small/large icons and the icon resource; application ID, relaunch command and relaunch name are untouched.
-- Add read-only pinned-route diagnostics and regression coverage that verifies the desktop/fixed-entry command still reaches the quota launch script.
-- Existing incorrect pins created by windows.7 need a one-time unpin/re-pin from the desktop Codex Usage Card shortcut; the installer does not repurpose official client pins.
-- Withdraw windows.7. Record that full client shutdown/taskbar cold-start has not been automated against the active client.
-
-## 0.9.4-windows.7 (running taskbar icon fix, 2026-10-31)
-
-- Synchronize official transparent white small/large icons and taskbar icon resources on actual client windows, including machines without a pinned `.lnk`.
-- Reapply after client icon/theme changes and new windows. Bind an unset window ID only to the actual/official client identity, never a custom launcher identity or launch command.
-- Scope the icon helper to the selected client and agent process handles, prevent duplicates, and restore previous window properties when either exits.
-- Package the icon helper and add native-window tests for no pinned shortcut, theme reset, new windows, identity/command preservation and restoration. Validate the actual local Codex window as well.
-
 ## 0.9.4-windows.6 (portable installer ZIP, 2026-10-31)
 
 - Add an allowlisted Windows x64 ZIP with Install, Diagnose and Uninstall commands, Chinese instructions, SHA-256 checksums and a signed Node.js 24 runtime plus its complete license.

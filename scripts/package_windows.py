@@ -15,7 +15,6 @@ PRODUCT = f"CodexUsageCard-Windows-{VERSION}-x64"
 FILES = [
     "LICENSE", "agent.cjs", "manage.cjs", "windows/manage.ps1",
     "windows/runner.cjs", "windows/doctor.cjs", "windows/icon.ps1", "windows/entry.vbs",
-    "windows/window-icon.ps1", "windows/WindowIconGuard.cs",
 ]
 README = """Codex Usage Card — Windows 安装包
 版本：{version}（Windows x64）
@@ -35,11 +34,6 @@ README = """Codex Usage Card — Windows 安装包
 - 仍须使用桌面 Codex Usage Card 启动；不支持从任意原始入口启动后自动加载。
 - 只添加这个桌面入口及隐藏的后台登录启动项，不添加重复开始菜单入口，不替换任务栏启动方式。
 - 图标直接使用目标电脑客户端自带的透明白色官方图标，不重绘、不改色。
-- 本版会同步实际运行窗口的大小图标和任务栏图标，不依赖已固定的 .lnk 文件。
-  图标助手只作用于通过额度入口打开的客户端，随插件代理或客户端退出而停止。
-- windows.8 已撤销 windows.7 的官方应用 ID 绑定，图标助手不修改应用 ID 或重启命令。
-  若使用 windows.7 固定后启动不显示额度：取消旧固定项，再右键桌面 Codex Usage Card 重新固定一次。
-  安装器不会擅自把原来的官方固定项改成额度入口；Diagnose.cmd 会显示固定项实际走哪条启动路线。
 - 运行文件和自带 Node 会复制到 %USERPROFILE%\\.codex\\addons\\codex-usage-card。
   安装成功后可以移动或删除解压目录，不会依赖解压目录中的 Node 路径。
 - 不修改客户端安装包或签名。无需复制原电脑的 .codex 目录、auth.json 或任何账号文件。

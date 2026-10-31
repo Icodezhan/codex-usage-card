@@ -1,6 +1,6 @@
 # Windows 安装与使用
 
-这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.8`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
+这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.6`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
 
 ## 环境与安装
 
@@ -21,10 +21,6 @@ node manage.cjs install
 安装器使用 `-ExecutionPolicy Bypass` 仅运行本次 PowerShell 子进程，不修改系统或用户的持久执行策略。快捷方式直接调用 Windows PowerShell 并使用 `-WindowStyle Hidden` 隐藏控制台，不再依赖 Windows Script Host 或 VBScript。安装时校验保存后的快捷方式目标和脚本路径，旧版 WSH 入口会自动迁移。启动失败时弹出具体错误，并在安装目录写入 `launcher-error.log`。
 
 桌面和已有任务栏图标统一使用客户端自带的透明背景白色 `chatgpt-app-dark.ico`，按原始字节复制，不重绘、不改色、不添加背景。任务栏仅修改图标属性，保留原始启动目标和参数。卸载时图标路径恢复到客户端自己的资源文件。
-
-运行窗口的大小图标和任务栏 `RelaunchIconResource` 由隐藏助手同步。助手只针对通过额度入口打开的客户端，随代理或客户端退出而停止，并恢复先前的图标。`windows.8` 严禁写入 `AppUserModel.ID`、`RelaunchCommand` 和 `RelaunchDisplayNameResource`，避免一次图标修改影响任务栏启动路由。
-
-`windows.7` 曾把窗口绑定到官方应用 ID、却没有额度入口的重启命令，导致 Windows 固定到任务栏时可能选中不带额度参数的官方启动入口。这个版本已撤回。若已用它创建错误的固定项，覆盖升级后还需取消该项，再右键桌面的 **Codex Usage Card** 重新固定一次；安装器不会擅自将原有官方固定项改成额度入口。`status.pinnedLaunchRoutes` 会区分额度启动器、带端口的客户端和不带端口的官方入口，仅用于诊断。
 
 ## 首次启用及后续启动
 
@@ -75,12 +71,8 @@ CDP 调试端口可以执行客户端窗口中的 JavaScript，权限高于单�
 npm test
 npm run test:browser
 npm run test:windows
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/window-icons.ps1
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/pinned-launch.ps1
 ```
 
 运行时只依赖 Node 自带模块和 Windows 组件，无需 `npm install`。浏览器测试使用本机 Chrome 或 Edge；`EDGE_BIN` 可覆盖浏览器路径。原始 macOS 发行和校验流程保持在上游文档与 Release 中。
-
-`pinned-launch.ps1` 在独立测试目录中复制桌面固定项的命令，验证它确实进入额度启动脚本，且图标同步不改窗口启动身份。它不会修改真实任务栏固定项，也不会关闭正在使用的客户端，不能代替“完全退出后从任务栏冷启动”的人工检查。
 
 后续客户端更新后的维护流程见 [Windows 维护指南](windows-maintenance.md)。

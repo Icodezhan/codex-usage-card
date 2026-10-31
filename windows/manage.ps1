@@ -111,21 +111,6 @@ function Start-Agent {
     for ($i = 0; $i -lt 50; $i++) { Start-Sleep -Milliseconds 100; if (Get-Agent) { return } }
     throw 'Agent failed to start. Inspect agent-error.log in the installation directory.'
 }
-function Sync-UsageCardWindowIcons([string]$AppPath) {
-    $agent = Get-Agent
-    if (!$agent) { return }
-    $iconPath = Join-Path $InstallRoot 'usage-card-official-white.ico'
-    if (!(Test-Path -LiteralPath $iconPath -PathType Leaf)) { throw 'Official window icon is missing. Reinstall the add-on.' }
-    $targets = @(Get-CimInstance Win32_Process -Filter "Name = 'ChatGPT.exe' OR Name = 'Codex.exe'" | Where-Object {
-        $_.ExecutablePath -eq $AppPath -and $_.CommandLine -notmatch '--type=' -and $_.CommandLine -match '--remote-debugging-port=39222'
-    })
-    foreach ($target in $targets) {
-        $helper = Join-Path $InstallRoot 'windows\window-icon.ps1'
-        $state = Join-Path $InstallRoot ('window-icon-' + $target.ProcessId + '.json')
-        $arguments = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $helper + '" -AgentPid ' + $agent.ProcessId + ' -TargetPid ' + $target.ProcessId + ' -AppPath "' + $AppPath + '" -IconPath "' + $iconPath + '" -StatePath "' + $state + '"'
-        Start-Process -FilePath (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList $arguments -WindowStyle Hidden | Out-Null
-    }
-}
 function Write-Link($File, $Target, $Arguments, $Description, $Icon = '') {
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($File)
@@ -155,18 +140,6 @@ function Remove-OwnedLink($File) {
         Remove-Item -LiteralPath $File -Force
     }
 }
-function Get-PinnedUsageRoutes([string]$AppPath) {
-    $directory = Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
-    if (!(Test-Path -LiteralPath $directory -PathType Container)) { return }
-    $shell = New-Object -ComObject WScript.Shell
-    foreach ($file in @(Get-ChildItem -LiteralPath $directory -Filter '*.lnk' -File)) {
-        $link = $shell.CreateShortcut($file.FullName)
-        $isLauncher = [IO.Path]::GetFileName($link.TargetPath) -ieq 'powershell.exe' -and $link.Arguments.Contains('"' + (Join-Path $InstallRoot 'windows\manage.ps1') + '"') -and $link.Arguments -match '-Action\s+launch'
-        if (!$isLauncher -and $link.TargetPath -ine $AppPath) { continue }
-        $route = if ($isLauncher) { 'usage-card-launcher' } elseif ($link.Arguments -match '--remote-debugging-port=39222') { 'client-with-usage-port' } else { 'official-client-without-usage-port' }
-        [ordered]@{name=$file.Name;route=$route;target=$link.TargetPath;arguments=$link.Arguments}
-    }
-}
 function Show-Status {
     $manifest = Read-Manifest
     $app = Find-App
@@ -183,10 +156,6 @@ function Show-Status {
         cdpListening = ($listener.Count -gt 0)
         cdpLoopbackOnly = ($listener.Count -gt 0 -and @($listener | Where-Object LocalAddress -NotIn @('127.0.0.1','::1')).Count -eq 0)
         state = $state
-        pinnedLaunchRoutes = @(Get-PinnedUsageRoutes $app)
-        windowIcons = @(Get-ChildItem -LiteralPath $InstallRoot -Filter 'window-icon-*.json' -File -ErrorAction SilentlyContinue | ForEach-Object {
-            try { Get-Content -LiteralPath $_.FullName -Raw -Encoding UTF8 | ConvertFrom-Json } catch { }
-        })
     } | ConvertTo-Json -Depth 8
 }
 
@@ -230,9 +199,9 @@ switch ($Action) {
         $NodePath = Install-BundledNode $SourceRoot $InstallRoot $NodePath
         if ([IO.Path]::GetFullPath($SourceRoot) -ne [IO.Path]::GetFullPath($InstallRoot)) {
             foreach ($file in @('agent.cjs','manage.cjs','LICENSE')) { Copy-Item -LiteralPath (Join-Path $SourceRoot $file) -Destination $InstallRoot -Force }
-            foreach ($file in @('manage.ps1','runner.cjs','entry.vbs','doctor.cjs','icon.ps1','window-icon.ps1','WindowIconGuard.cs')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $InstallRoot 'windows') -Force }
+            foreach ($file in @('manage.ps1','runner.cjs','entry.vbs','doctor.cjs','icon.ps1')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $InstallRoot 'windows') -Force }
         }
-        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.8'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
+        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.6'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
         $entry = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + (Join-Path $InstallRoot 'windows\manage.ps1') + '"'
         $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
         Write-Link $StartupLink $powershell ($entry + ' -Action start -FromShortcut') 'Codex Usage Card background agent'
@@ -249,7 +218,6 @@ switch ($Action) {
             }
         }
         Start-Agent
-        Sync-UsageCardWindowIcons $app
         Show-Status
         Write-LaunchLog 'Installation completed in Explorer context.'
         if ($CompletionPath) { Save-Json $CompletionPath @{success=$true} }
@@ -268,7 +236,6 @@ switch ($Action) {
             # window hidden in the tray is shown, while retaining its flags.
             Start-Process -FilePath $app -WorkingDirectory (Split-Path -Parent $app) -WindowStyle Normal | Out-Null
             Write-LaunchLog 'Existing Codex session activated without restarting.'
-            Sync-UsageCardWindowIcons $app
             Write-Output 'Codex is already running with the usage-card connection.'
         } else {
             $listeners = @(Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue)
@@ -289,7 +256,6 @@ switch ($Action) {
                 throw ('Codex did not expose its local usage-card connection within 20 seconds.' + $exitInfo + ' See launcher.log in ' + $InstallRoot)
             }
             Write-LaunchLog 'Codex main window and local debugging connection verified.'
-            Sync-UsageCardWindowIcons $app
             Write-Output 'Codex main window and usage-card connection verified.'
         }
     }
