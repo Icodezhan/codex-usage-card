@@ -24,10 +24,10 @@ foreach ($entry in $entries) {
     if (!(Test-Path -LiteralPath $shortcutPath -PathType Leaf)) { throw "Missing shortcut: $shortcutPath" }
     Assert-PhysicalPath $shortcutPath
     $shortcut = $shell.CreateShortcut($shortcutPath)
-    if (!(Test-Path -LiteralPath $shortcut.TargetPath -PathType Leaf) -or [IO.Path]::GetFileName($shortcut.TargetPath) -ne 'powershell.exe') { throw 'Shortcut must target an existing PowerShell executable.' }
-    $scriptPath = Join-Path $installRoot 'windows\manage.ps1'
-    if (!(Test-Path -LiteralPath $scriptPath -PathType Leaf) -or !$shortcut.Arguments.Contains('-File "' + $scriptPath + '"')) { throw 'Shortcut script path is missing or incorrectly quoted.' }
-    if (!$shortcut.Arguments.Contains('-Action ' + $entry.Action + ' -FromShortcut')) { throw 'Shortcut action does not match its purpose.' }
+    if (!(Test-Path -LiteralPath $shortcut.TargetPath -PathType Leaf) -or [IO.Path]::GetFileName($shortcut.TargetPath) -ne 'wscript.exe') { throw 'Shortcut must target the console-free Windows Script Host.' }
+    $scriptPath = Join-Path $installRoot 'windows\entry.vbs'
+    if (!(Test-Path -LiteralPath $scriptPath -PathType Leaf) -or !$shortcut.Arguments.Contains('"' + $scriptPath + '"')) { throw 'Shortcut script path is missing or incorrectly quoted.' }
+    if (!$shortcut.Arguments.EndsWith(' '+$entry.Action)) { throw 'Shortcut action does not match its purpose.' }
     if ($entry.Action -eq 'start') { $startupPath = $shortcutPath }
 }
 foreach ($entryName in @('Codex.lnk','Codex Usage Card.lnk','ChatGPT.lnk')) {

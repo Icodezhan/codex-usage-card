@@ -1,6 +1,6 @@
 # Windows 长期维护指南
 
-长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.11`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
+长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.12`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
 
 ## 维护边界
 
@@ -18,7 +18,7 @@
 - Windows x64 ZIP、运行时独立复制和回归测试于 2026-10-31 验证。其他电脑、其他客户端版本及 ARM64 尚未实际验证。
 - 上游文档基线提交为 `f1cc976`，来源为 `Lorie7813/codex-usage-card`。
 - 运行代码来源为上游 `v0.9.4-beta.1` Release 的可读 `agent.cjs`；原 ZIP SHA-256 为 `e41cbb00fd01b785eb0cac73a946115a35dd2d9a2410c196ec7287ce4b1737f8`。此公开上游仓库主要保存文档，单独更新 Git 文档不等于更新了运行代码。
-- 首个 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.11.json)。
+- 首个 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.12.json)。
 
 ## 从哪里定位问题
 
@@ -82,3 +82,5 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/bundled-runtime.ps
 上游新 Release 的运行文件应从其已核验的归档中取得，再与本分支的 Windows 改动比较。不要直接覆盖已验证的适配，也不要把文档仓库的无冲突合并视为功能验证。
 
 当前本机选择使用启动后图标同步：启动时可能短暂显示客户端灰色图标，随后应用官方透明白色 logo。窗口和桌面额度入口使用 CodexUsageCard.Windows 分组，窗口重启命令复用既有桌面额度启动命令。不会修改官方程序或签名，不新增开始菜单入口；原始固定项仅在明确属于额度入口时关联额度分组。完整退出重开已由用户观察到灰色随后白色；此行为于 2026-10-31 获用户接受。
+
+windows.12 将桌面、后台启动及额度任务栏重启入口统一为 wscript.exe 隐藏入口，并为图标助手启用 CreateNoWindow，避免命令行窗口闪现。图标同步方式和额度功能保持不变。

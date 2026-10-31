@@ -1,0 +1,19 @@
+{
+  "version": "0.9.4-windows.12",
+  "archive": "CodexUsageCard-Windows-0.9.4-windows.12-x64.zip",
+  "bytes": 34030608,
+  "sha256": "65f81671d62a5271b2c36eef48d02cf3efab3c34f298e28b108021bc5e6b6005",
+  "changes": [
+    "GUI wscript shortcut launches PowerShell hidden",
+    "Icon worker uses CreateNoWindow",
+    "Owned quota taskbar shortcuts migrated to the same hidden launcher"
+  ],
+  "verification": {
+    "hidden_desktop_entry_existing_client": "passed, no client restart",
+    "native_icon_and_shortcut_tests": "passed",
+    "core_tests": "7 passed",
+    "archive_checksums_and_source_equality": "passed",
+    "fresh_client_visual_console_check": "not independently observed"
+  },
+  "includes_user_data": false
+}

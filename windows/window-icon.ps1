@@ -6,9 +6,9 @@ param([Parameter(Mandatory=$true)][int]$AgentPid,
 $ErrorActionPreference='Stop'
 try {
     Add-Type -Path (Join-Path $PSScriptRoot 'WindowIconGuard.cs')
-    $powershell=Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
-    $manager=Join-Path $PSScriptRoot 'manage.ps1'
-    $relaunch='"'+$powershell+'" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+$manager+'" -Action launch -FromShortcut'
+    $hostPath=Join-Path $env:WINDIR 'System32\wscript.exe'
+    $entry=Join-Path $PSScriptRoot 'entry.vbs'
+    $relaunch='"'+$hostPath+'" //B //Nologo "'+$entry+'" launch'
     [CodexUsageCard.WindowIconGuard]::Run($AgentPid,$TargetPid,$AppPath,$IconPath,$StatePath,$relaunch)
 } catch {
     $result=@{state='error';targetPid=$TargetPid;message=$_.Exception.Message;checkedAt=[DateTime]::UtcNow.ToString('o')}

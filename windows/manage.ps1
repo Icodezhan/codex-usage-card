@@ -123,7 +123,13 @@ function Sync-UsageCardWindowIcons([string]$AppPath) {
         $helper = Join-Path $InstallRoot 'windows\window-icon.ps1'
         $state = Join-Path $InstallRoot ('window-icon-' + $target.ProcessId + '.json')
         $arguments = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $helper + '" -AgentPid ' + $agent.ProcessId + ' -TargetPid ' + $target.ProcessId + ' -AppPath "' + $AppPath + '" -IconPath "' + $iconPath + '" -StatePath "' + $state + '"'
-        Start-Process -FilePath (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList $arguments -WindowStyle Hidden | Out-Null
+        $hidden=New-Object Diagnostics.ProcessStartInfo
+        $hidden.FileName=Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
+        $hidden.Arguments=$arguments
+        $hidden.UseShellExecute=$false
+        $hidden.CreateNoWindow=$true
+        $hidden.WindowStyle=[Diagnostics.ProcessWindowStyle]::Hidden
+        [Diagnostics.Process]::Start($hidden) | Out-Null
     }
 }
 function Write-Link($File, $Target, $Arguments, $Description, $Icon = '') {
@@ -216,15 +222,26 @@ switch ($Action) {
             foreach ($file in @('agent.cjs','manage.cjs','LICENSE')) { Copy-Item -LiteralPath (Join-Path $SourceRoot $file) -Destination $InstallRoot -Force }
             foreach ($file in @('manage.ps1','runner.cjs','entry.vbs','doctor.cjs','icon.ps1','window-icon.ps1','WindowIconGuard.cs')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $InstallRoot 'windows') -Force }
         }
-        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.11'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
+        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.12'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
         $entry = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + (Join-Path $InstallRoot 'windows\manage.ps1') + '"'
         $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
-        Write-Link $StartupLink $powershell ($entry + ' -Action start -FromShortcut') 'Codex Usage Card background agent'
+        $hostPath=Join-Path $env:WINDIR 'System32\wscript.exe'
+        $hiddenEntry='//B //Nologo "'+(Join-Path $InstallRoot 'windows\entry.vbs')+'"'
+        Write-Link $StartupLink $hostPath ($hiddenEntry + ' start') 'Codex Usage Card background agent'
         Remove-OwnedLink $MenuLink
         . (Join-Path $InstallRoot 'windows\icon.ps1')
         $desktopIcon = New-UsageCardIcon $app
-        Write-Link $DesktopLink $powershell ($entry + ' -Action launch -FromShortcut') 'Launch Codex with sidebar usage rings' $desktopIcon
+        Write-Link $DesktopLink $hostPath ($hiddenEntry + ' launch') 'Launch Codex with sidebar usage rings' $desktopIcon
         Set-UsageCardDesktopIdentity $DesktopLink $desktopIcon
+        $pins=Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
+        if(Test-Path -LiteralPath $pins){foreach($pin in Get-ChildItem -LiteralPath $pins -Filter '*.lnk' -File){
+            $old=(New-Object -ComObject WScript.Shell).CreateShortcut($pin.FullName)
+            if(Test-OwnedLink $old){
+                Write-Link $pin.FullName $hostPath ($hiddenEntry+' launch') 'Codex Usage Card' $desktopIcon
+                Set-UsageCardDesktopIdentity $pin.FullName $desktopIcon
+                Notify-UsageCardIcon $pin.FullName
+            }
+        }}
         Set-UsageCardTaskbarIcon $app $desktopIcon
         foreach ($linkPath in @($StartupLink, $DesktopLink)) {
             $saved = (New-Object -ComObject WScript.Shell).CreateShortcut($linkPath)

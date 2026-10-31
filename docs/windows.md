@@ -1,6 +1,6 @@
 # Windows 安装与使用
 
-这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.11`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
+这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.12`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
 
 ## 环境与安装
 
@@ -18,7 +18,7 @@ node manage.cjs install
 
 早期 Windows 适配在 Codex 商店版进程内写入 AppData 时，实际被重定向到应用的 `LocalCache` 隔离目录；应用内测试能看到文件，桌面启动却找不到。当前版本将运行文件放在 AppData 以外，并经 Explorer 在真实桌面进程环境中完成安装。回归测试使用 `GetFinalPathNameByHandle` 检查运行文件及快捷方式的实际物理路径，避免把应用内可见误当作系统可见。这符合 [Microsoft 的 MSIX 文件虚拟化说明](https://learn.microsoft.com/en-us/windows/msix/desktop/flexible-virtualization)。不修改应用清单、签名或系统安全配置。
 
-安装器使用 `-ExecutionPolicy Bypass` 仅运行本次 PowerShell 子进程，不修改系统或用户的持久执行策略。快捷方式直接调用 Windows PowerShell 并使用 `-WindowStyle Hidden` 隐藏控制台，不再依赖 Windows Script Host 或 VBScript。安装时校验保存后的快捷方式目标和脚本路径，旧版 WSH 入口会自动迁移。启动失败时弹出具体错误，并在安装目录写入 `launcher-error.log`。
+安装器使用 `-ExecutionPolicy Bypass` 仅运行本次 PowerShell 子进程，不修改系统或用户的持久执行策略。快捷方式由无控制台的 Windows Script Host 调用入口脚本，以隐藏方式创建 PowerShell，避免 PowerShell 运行到隐藏参数前闪出窗口。图标助手使用 CreateNoWindow 创建。安装时校验保存后的快捷方式目标和脚本路径，旧版 WSH 入口会自动迁移。启动失败时弹出具体错误，并在安装目录写入 `launcher-error.log`。
 
 桌面和已有任务栏图标统一使用客户端自带的透明背景白色 `chatgpt-app-dark.ico`，按原始字节复制，不重绘、不改色、不添加背景。任务栏仅修改图标属性，保留原始启动目标和参数。卸载时图标路径恢复到客户端自己的资源文件。
 

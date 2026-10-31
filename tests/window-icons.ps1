@@ -59,8 +59,8 @@ try {
     $beforeCommand=[CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,2)
     $beforeName=[CodexUsageCard.WindowIconSession]::ReadProperty($first.Handle,4)
     $targetPath=(Get-Process -Id $PID).Path
-    $ps=Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
-    $expectedCommand='"'+$ps+'" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+(Join-Path $RuntimeRoot 'windows\manage.ps1')+'" -Action launch -FromShortcut'
+    $hostPath=Join-Path $env:WINDIR 'System32\wscript.exe'
+    $expectedCommand='"'+$hostPath+'" //B //Nologo "'+(Join-Path $RuntimeRoot 'windows\entry.vbs')+'" launch'
     $arguments='-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+(Join-Path $RuntimeRoot 'windows\window-icon.ps1')+'" -AgentPid '+$parent.Id+' -TargetPid '+$PID+' -AppPath "'+$targetPath+'" -IconPath "'+$officialIcon+'" -StatePath "'+$statePath+'"'
     $helper=Start-Process -FilePath 'powershell.exe' -ArgumentList $arguments -WindowStyle Hidden -PassThru
     $ready=$false

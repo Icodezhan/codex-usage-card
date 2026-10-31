@@ -20,7 +20,7 @@ function Set-UsageCardDesktopIdentity([string]$Path,[string]$IconLocation) {
     if (!('CodexUsageCard.WindowIconSession' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'WindowIconGuard.cs') }
     $link=(New-Object -ComObject WScript.Shell).CreateShortcut($Path)
     $manager=Join-Path (Split-Path -Parent $PSScriptRoot) 'windows\manage.ps1'
-    if ([IO.Path]::GetFileName($link.TargetPath) -ine 'powershell.exe' -or !$link.Arguments.Contains('"'+$manager+'"') -or $link.Arguments -notmatch '-Action\s+launch') { throw 'Unexpected quota desktop launcher.' }
+    if ([IO.Path]::GetFileName($link.TargetPath) -ine 'wscript.exe' -or !$link.Arguments.Contains('"'+(Join-Path $PSScriptRoot 'entry.vbs')+'"') -or $link.Arguments -notmatch '\slaunch$') { throw 'Unexpected quota desktop launcher.' }
     [CodexUsageCard.WindowIconSession]::ConfigureShortcut($Path,$IconLocation,('"'+$link.TargetPath+'" '+$link.Arguments))
 }
 
@@ -56,7 +56,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     $app = Join-Path $package.InstallLocation 'app\ChatGPT.exe'
     $shortcutPath = Join-Path ([Environment]::GetFolderPath('Desktop')) 'Codex Usage Card.lnk'
     $shortcut = (New-Object -ComObject WScript.Shell).CreateShortcut($shortcutPath)
-    if (!$shortcut.Arguments.Contains('"' + (Join-Path $root 'windows\manage.ps1') + '"')) { throw 'The desktop shortcut is not owned by this add-on.' }
+    if (!$shortcut.Arguments.Contains('"' + (Join-Path $root 'windows\entry.vbs') + '"')) { throw 'The desktop shortcut is not owned by this add-on.' }
     $iconLocation = New-UsageCardIcon $app
     $shortcut.IconLocation = $iconLocation
     $shortcut.Save()

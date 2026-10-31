@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.4-windows.12 (hide launcher consoles, 2026-10-31)
+
+- Use the GUI Windows Script Host as the desktop, Startup and owned taskbar entry, creating PowerShell hidden from launch.
+- Start the icon helper with UseShellExecute=false and CreateNoWindow=true. Preserve quota grouping and the existing white icon behavior.
+- Migrate only taskbar shortcuts already owned by the quota launcher; ordinary app shortcuts remain untouched.
+
+
 ## 0.9.4-windows.11 (authorized runtime white icon synchronization, 2026-10-31)
 
 - Restore the tested desktop/window quota identity and official white icon synchronization. The client may initially show its executable icon before synchronization; the user accepted this behavior.

@@ -1,6 +1,6 @@
 # Codex Usage Card
 
-> **本地 Windows 适配版（0.9.4-windows.11）**：通过桌面 **Codex Usage Card** 快捷方式启动 Codex 并显示额度圆环。`dist/` 中的 Windows x64 ZIP 已包含 Node.js，可复制到其他电脑，完整解压后运行 `Install.cmd`。运行文件安装到 `.codex/addons/codex-usage-card`，经 Explorer 安装并验证真实物理路径。当前版本不支持任意原始入口启动后自动加载。详见 [Windows 安装与使用](docs/windows.md)。下方原始说明描述上游 macOS Release。
+> **本地 Windows 适配版（0.9.4-windows.12）**：通过桌面 **Codex Usage Card** 快捷方式启动 Codex 并显示额度圆环。`dist/` 中的 Windows x64 ZIP 已包含 Node.js，可复制到其他电脑，完整解压后运行 `Install.cmd`。运行文件安装到 `.codex/addons/codex-usage-card`，经 Explorer 安装并验证真实物理路径。当前版本不支持任意原始入口启动后自动加载。详见 [Windows 安装与使用](docs/windows.md)。下方原始说明描述上游 macOS Release。
 
 Windows 长期维护分支：`codex/windows-maintenance`。兼容性定位、版本记录、测试和打包流程见 [Windows 维护指南](docs/windows-maintenance.md)。
 
@@ -97,3 +97,5 @@ Distributed under the applicable [MIT license](LICENSE). The original copyright 
 本项目与 OpenAI 无官方关联；保留适用的 MIT 许可证及原始版权声明。完整细节请阅读英文说明、[LICENSE](LICENSE) 和 [安全隐私说明](SECURITY.md)。
 
 当前本机选择使用启动后图标同步：启动时可能短暂显示客户端灰色图标，随后应用官方透明白色 logo。窗口和桌面额度入口使用 CodexUsageCard.Windows 分组，窗口重启命令复用既有桌面额度启动命令。不会修改官方程序或签名，不新增开始菜单入口；原始固定项仅在明确属于额度入口时关联额度分组。完整退出重开已由用户观察到灰色随后白色；此行为于 2026-10-31 获用户接受。
+
+windows.12 将桌面、后台启动及额度任务栏重启入口统一为 wscript.exe 隐藏入口，并为图标助手启用 CreateNoWindow，避免命令行窗口闪现。图标同步方式和额度功能保持不变。
