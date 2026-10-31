@@ -15,6 +15,7 @@ PRODUCT = f"CodexUsageCard-Windows-{VERSION}-x64"
 FILES = [
     "LICENSE", "agent.cjs", "manage.cjs", "windows/manage.ps1",
     "windows/runner.cjs", "windows/doctor.cjs", "windows/icon.ps1", "windows/entry.vbs",
+    "windows/window-icon.ps1", "windows/WindowIconGuard.cs",
 ]
 README = """Codex Usage Card — Windows 安装包
 版本：{version}（Windows x64）

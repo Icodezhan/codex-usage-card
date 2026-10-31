@@ -16,6 +16,14 @@ function Notify-UsageCardIcon([string]$ShortcutPath) {
     [UsageCardOfficialIconRefresh]::SHChangeNotify(0x2000, 0x5, $ShortcutPath, $null)
 }
 
+function Set-UsageCardDesktopIdentity([string]$Path,[string]$IconLocation) {
+    if (!('CodexUsageCard.WindowIconSession' -as [type])) { Add-Type -Path (Join-Path $PSScriptRoot 'WindowIconGuard.cs') }
+    $link=(New-Object -ComObject WScript.Shell).CreateShortcut($Path)
+    $manager=Join-Path (Split-Path -Parent $PSScriptRoot) 'windows\manage.ps1'
+    if ([IO.Path]::GetFileName($link.TargetPath) -ine 'powershell.exe' -or !$link.Arguments.Contains('"'+$manager+'"') -or $link.Arguments -notmatch '-Action\s+launch') { throw 'Unexpected quota desktop launcher.' }
+    [CodexUsageCard.WindowIconSession]::ConfigureShortcut($Path,$IconLocation,('"'+$link.TargetPath+'" '+$link.Arguments))
+}
+
 function Set-UsageCardTaskbarIcon([string]$AppPath, [string]$IconLocation) {
     $directory = Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
     if (!(Test-Path -LiteralPath $directory -PathType Container)) { return }
@@ -26,7 +34,7 @@ function Set-UsageCardTaskbarIcon([string]$AppPath, [string]$IconLocation) {
     foreach ($file in @(Get-ChildItem -LiteralPath $directory -Filter '*.lnk' -File)) {
         $shortcut = $shell.CreateShortcut($file.FullName)
         $item = $shellFolder.ParseName($file.Name)
-        $sameAppId = $appId -and $item -and ($item.ExtendedProperty('System.AppUserModel.ID') -eq $appId)
+        $sameAppId = $item -and ($item.ExtendedProperty('System.AppUserModel.ID') -in @($appId,'CodexUsageCard.Windows'))
         if ($shortcut.TargetPath -ine $AppPath -and !$sameAppId) { continue }
         $before = @($shortcut.TargetPath, $shortcut.Arguments, $shortcut.WorkingDirectory, $shortcut.Description) | ConvertTo-Json -Compress
         $shortcut.IconLocation = $IconLocation
@@ -52,6 +60,7 @@ if ($MyInvocation.InvocationName -ne '.') {
     $iconLocation = New-UsageCardIcon $app
     $shortcut.IconLocation = $iconLocation
     $shortcut.Save()
+    Set-UsageCardDesktopIdentity $shortcutPath $iconLocation
     Notify-UsageCardIcon $shortcutPath
     Set-UsageCardTaskbarIcon $app $iconLocation
     [UsageCardOfficialIconRefresh]::SHChangeNotify(0x08000000, 0, $null, $null)

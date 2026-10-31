@@ -1,6 +1,6 @@
 # Windows 安装与使用
 
-这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.6`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
+这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.11`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
 
 ## 环境与安装
 
@@ -76,3 +76,5 @@ npm run test:windows
 运行时只依赖 Node 自带模块和 Windows 组件，无需 `npm install`。浏览器测试使用本机 Chrome 或 Edge；`EDGE_BIN` 可覆盖浏览器路径。原始 macOS 发行和校验流程保持在上游文档与 Release 中。
 
 后续客户端更新后的维护流程见 [Windows 维护指南](windows-maintenance.md)。
+
+当前本机选择使用启动后图标同步：启动时可能短暂显示客户端灰色图标，随后应用官方透明白色 logo。窗口和桌面额度入口使用 CodexUsageCard.Windows 分组，窗口重启命令复用既有桌面额度启动命令。不会修改官方程序或签名，不新增开始菜单入口；原始固定项仅在明确属于额度入口时关联额度分组。完整退出重开已由用户观察到灰色随后白色；此行为于 2026-10-31 获用户接受。

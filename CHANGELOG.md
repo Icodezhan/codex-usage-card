@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.9.4-windows.11 (authorized runtime white icon synchronization, 2026-10-31)
+
+- Restore the tested desktop/window quota identity and official white icon synchronization. The client may initially show its executable icon before synchronization; the user accepted this behavior.
+- Keep the existing quota desktop launch command, pair taskbar relaunch metadata with it, and do not modify the signed client package.
+
+
 ## 0.9.4-windows.6 (portable installer ZIP, 2026-10-31)
 
 - Add an allowlisted Windows x64 ZIP with Install, Diagnose and Uninstall commands, Chinese instructions, SHA-256 checksums and a signed Node.js 24 runtime plus its complete license.

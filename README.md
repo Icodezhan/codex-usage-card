@@ -1,6 +1,6 @@
 # Codex Usage Card
 
-> **本地 Windows 适配版（0.9.4-windows.6）**：通过桌面 **Codex Usage Card** 快捷方式启动 Codex 并显示额度圆环。`dist/` 中的 Windows x64 ZIP 已包含 Node.js，可复制到其他电脑，完整解压后运行 `Install.cmd`。运行文件安装到 `.codex/addons/codex-usage-card`，经 Explorer 安装并验证真实物理路径。当前版本不支持任意原始入口启动后自动加载。详见 [Windows 安装与使用](docs/windows.md)。下方原始说明描述上游 macOS Release。
+> **本地 Windows 适配版（0.9.4-windows.11）**：通过桌面 **Codex Usage Card** 快捷方式启动 Codex 并显示额度圆环。`dist/` 中的 Windows x64 ZIP 已包含 Node.js，可复制到其他电脑，完整解压后运行 `Install.cmd`。运行文件安装到 `.codex/addons/codex-usage-card`，经 Explorer 安装并验证真实物理路径。当前版本不支持任意原始入口启动后自动加载。详见 [Windows 安装与使用](docs/windows.md)。下方原始说明描述上游 macOS Release。
 
 Windows 长期维护分支：`codex/windows-maintenance`。兼容性定位、版本记录、测试和打包流程见 [Windows 维护指南](docs/windows-maintenance.md)。
 
@@ -95,3 +95,5 @@ Distributed under the applicable [MIT license](LICENSE). The original copyright 
 **重要提醒：** 安装包未经 Apple 公证；不要关闭系统级安全防护。插件使用本机调试端口，该接口具备较高权限，请勿转发或开放给其他设备。管理器仅接受指定端口的本机 WebSocket 地址，但本机地址校验并不提供身份认证。安装不会自动清理 Dock、Launchpad 或移动旧快捷方式，也不会重启 Dock。自动更新保持禁用，包内不提供更新快捷入口。卸载可在解压目录运行 `node manage.cjs uninstall`。
 
 本项目与 OpenAI 无官方关联；保留适用的 MIT 许可证及原始版权声明。完整细节请阅读英文说明、[LICENSE](LICENSE) 和 [安全隐私说明](SECURITY.md)。
+
+当前本机选择使用启动后图标同步：启动时可能短暂显示客户端灰色图标，随后应用官方透明白色 logo。窗口和桌面额度入口使用 CodexUsageCard.Windows 分组，窗口重启命令复用既有桌面额度启动命令。不会修改官方程序或签名，不新增开始菜单入口；原始固定项仅在明确属于额度入口时关联额度分组。完整退出重开已由用户观察到灰色随后白色；此行为于 2026-10-31 获用户接受。

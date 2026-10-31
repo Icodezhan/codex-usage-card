@@ -111,6 +111,21 @@ function Start-Agent {
     for ($i = 0; $i -lt 50; $i++) { Start-Sleep -Milliseconds 100; if (Get-Agent) { return } }
     throw 'Agent failed to start. Inspect agent-error.log in the installation directory.'
 }
+function Sync-UsageCardWindowIcons([string]$AppPath) {
+    $agent = Get-Agent
+    if (!$agent) { return }
+    $iconPath = Join-Path $InstallRoot 'usage-card-official-white.ico'
+    if (!(Test-Path -LiteralPath $iconPath -PathType Leaf)) { throw 'Official window icon is missing. Reinstall the add-on.' }
+    $targets = @(Get-CimInstance Win32_Process -Filter "Name = 'ChatGPT.exe' OR Name = 'Codex.exe'" | Where-Object {
+        $_.ExecutablePath -eq $AppPath -and $_.CommandLine -notmatch '--type=' -and $_.CommandLine -match '--remote-debugging-port=39222'
+    })
+    foreach ($target in $targets) {
+        $helper = Join-Path $InstallRoot 'windows\window-icon.ps1'
+        $state = Join-Path $InstallRoot ('window-icon-' + $target.ProcessId + '.json')
+        $arguments = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $helper + '" -AgentPid ' + $agent.ProcessId + ' -TargetPid ' + $target.ProcessId + ' -AppPath "' + $AppPath + '" -IconPath "' + $iconPath + '" -StatePath "' + $state + '"'
+        Start-Process -FilePath (Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe') -ArgumentList $arguments -WindowStyle Hidden | Out-Null
+    }
+}
 function Write-Link($File, $Target, $Arguments, $Description, $Icon = '') {
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($File)
@@ -199,9 +214,9 @@ switch ($Action) {
         $NodePath = Install-BundledNode $SourceRoot $InstallRoot $NodePath
         if ([IO.Path]::GetFullPath($SourceRoot) -ne [IO.Path]::GetFullPath($InstallRoot)) {
             foreach ($file in @('agent.cjs','manage.cjs','LICENSE')) { Copy-Item -LiteralPath (Join-Path $SourceRoot $file) -Destination $InstallRoot -Force }
-            foreach ($file in @('manage.ps1','runner.cjs','entry.vbs','doctor.cjs','icon.ps1')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $InstallRoot 'windows') -Force }
+            foreach ($file in @('manage.ps1','runner.cjs','entry.vbs','doctor.cjs','icon.ps1','window-icon.ps1','WindowIconGuard.cs')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $InstallRoot 'windows') -Force }
         }
-        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.6'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
+        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.11'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
         $entry = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + (Join-Path $InstallRoot 'windows\manage.ps1') + '"'
         $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
         Write-Link $StartupLink $powershell ($entry + ' -Action start -FromShortcut') 'Codex Usage Card background agent'
@@ -209,6 +224,7 @@ switch ($Action) {
         . (Join-Path $InstallRoot 'windows\icon.ps1')
         $desktopIcon = New-UsageCardIcon $app
         Write-Link $DesktopLink $powershell ($entry + ' -Action launch -FromShortcut') 'Launch Codex with sidebar usage rings' $desktopIcon
+        Set-UsageCardDesktopIdentity $DesktopLink $desktopIcon
         Set-UsageCardTaskbarIcon $app $desktopIcon
         foreach ($linkPath in @($StartupLink, $DesktopLink)) {
             $saved = (New-Object -ComObject WScript.Shell).CreateShortcut($linkPath)
@@ -218,6 +234,7 @@ switch ($Action) {
             }
         }
         Start-Agent
+        Sync-UsageCardWindowIcons $app
         Show-Status
         Write-LaunchLog 'Installation completed in Explorer context.'
         if ($CompletionPath) { Save-Json $CompletionPath @{success=$true} }
@@ -236,6 +253,7 @@ switch ($Action) {
             # window hidden in the tray is shown, while retaining its flags.
             Start-Process -FilePath $app -WorkingDirectory (Split-Path -Parent $app) -WindowStyle Normal | Out-Null
             Write-LaunchLog 'Existing Codex session activated without restarting.'
+            Sync-UsageCardWindowIcons $app
             Write-Output 'Codex is already running with the usage-card connection.'
         } else {
             $listeners = @(Get-NetTCPConnection -State Listen -LocalPort $Port -ErrorAction SilentlyContinue)
@@ -256,6 +274,7 @@ switch ($Action) {
                 throw ('Codex did not expose its local usage-card connection within 20 seconds.' + $exitInfo + ' See launcher.log in ' + $InstallRoot)
             }
             Write-LaunchLog 'Codex main window and local debugging connection verified.'
+            Sync-UsageCardWindowIcons $app
             Write-Output 'Codex main window and usage-card connection verified.'
         }
     }
@@ -276,6 +295,8 @@ switch ($Action) {
         $resolved = (Resolve-Path -LiteralPath $InstallRoot).Path
         if ($resolved -ne $expected -or (Get-Item -LiteralPath $InstallRoot).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Unsafe uninstall target.' }
         foreach ($linkPath in @($StartupLink,$MenuLink,$DesktopLink)) { Remove-OwnedLink $linkPath }
+        $pins=Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar'
+        if (Test-Path -LiteralPath $pins) { foreach ($pin in Get-ChildItem -LiteralPath $pins -Filter '*.lnk' -File) { Remove-OwnedLink $pin.FullName } }
         $normalLinks = @(
             (Join-Path ([Environment]::GetFolderPath('Desktop')) 'Codex.lnk'),
             (Join-Path ([Environment]::GetFolderPath('Programs')) 'Codex.lnk'),

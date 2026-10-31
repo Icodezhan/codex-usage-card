@@ -1,9 +1,11 @@
 {
   "name": "codex-usage-card-windows",
-  "version": "0.9.4-windows.6",
+  "version": "0.9.4-windows.11",
   "private": true,
   "license": "MIT",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
     "test": "node --test tests/agent.test.cjs",
     "test:browser": "node tests/browser-smoke.cjs",
