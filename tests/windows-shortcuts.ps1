@@ -36,10 +36,9 @@ foreach ($entryName in @('Codex.lnk','Codex Usage Card.lnk','ChatGPT.lnk')) {
 $pin = Join-Path $env:APPDATA 'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar\Codex.lnk'
 if (Test-Path -LiteralPath $pin) {
     $pinned = $shell.CreateShortcut($pin)
-    $isQuota=[IO.Path]::GetFileName($pinned.TargetPath) -ieq 'powershell.exe' -and $pinned.Arguments.Contains('"'+(Join-Path $installRoot 'windows\manage.ps1')+'"') -and $pinned.Arguments -match '-Action\s+launch'
-    if (!$isQuota -and ($pinned.TargetPath -like ($installRoot + '\*') -or $pinned.Arguments -match 'remote-debugging|codex-usage-card')) { throw 'Unexpected legacy taskbar launcher.' }
+    if ($pinned.TargetPath -like ($installRoot + '\*') -or $pinned.Arguments -match 'remote-debugging|codex-usage-card') { throw 'Taskbar entry still points to the add-on launcher.' }
 }
-Write-Output 'PASS: desktop launcher and background startup are valid; duplicate Start menu entries and unexpected legacy taskbar launchers are absent.'
+Write-Output 'PASS: desktop launcher and background startup are valid; duplicate Start menu entries and taskbar redirection are absent.'
 $manager = Join-Path $installRoot 'manage.cjs'
 $node = (Get-Content -LiteralPath (Join-Path $installRoot 'installation.json') -Raw -Encoding UTF8 | ConvertFrom-Json).node
 & $node $manager stop

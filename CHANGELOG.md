@@ -1,12 +1,5 @@
 # Changelog
 
-## 0.9.4-windows.9 (package the confirmed taskbar restoration, 2026-10-31)
-
-- Keep the restored windows.6 launch implementation; no running-window icon helper or application-ID binding.
-- Add explicit RepairTaskbar.cmd: reuse the desktop white icon and quota command on a single user-pinned client shortcut, preserving its existing grouping identity. Installation does not silently replace official taskbar launch routes.
-- Reject missing or ambiguous pins, back up the shortcut, and verify the saved icon, launch arguments and identity.
-
-
 ## 0.9.4-windows.6 (portable installer ZIP, 2026-10-31)
 
 - Add an allowlisted Windows x64 ZIP with Install, Diagnose and Uninstall commands, Chinese instructions, SHA-256 checksums and a signed Node.js 24 runtime plus its complete license.
