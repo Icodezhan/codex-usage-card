@@ -1,0 +1,14 @@
+{
+  "name": "codex-usage-card-windows",
+  "version": "0.9.4-windows.6",
+  "private": true,
+  "license": "MIT",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "test": "node --test tests/agent.test.cjs",
+    "test:browser": "node tests/browser-smoke.cjs",
+    "test:windows": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/windows-shortcuts.ps1",
+    "install:windows": "node manage.cjs install",
+    "status": "node manage.cjs status"
+  }
+}

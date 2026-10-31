@@ -1,5 +1,9 @@
 # Security & Privacy
 
+## Local Windows adaptation
+
+This checkout includes a local Windows port (`0.9.4-windows.6`). See [Windows setup and security](docs/windows.md) for its separate installation boundary. It installs under the current user's `.codex/addons/codex-usage-card`, creates one desktop launcher and one hidden Startup entry, and does not replace normal taskbar or Store entry points. Existing matching taskbar icons may use the client's official transparent white icon; their launch targets and arguments are preserved. The taskbar launcher integration was withdrawn. It does not modify the signed application bundle, restart active Codex sessions, or execute the macOS helper/updater. Installation is brokered through Explorer to avoid inheriting Store app filesystem redirection; physical paths are tested. Distribution ZIPs include the signed Node runtime and its complete license, and exclude credentials, conversations, logs and local installation state. The desktop launcher enables a powerful loopback-only CDP interface on port 39222. A normal Codex restart is required to close that interface after uninstall. Original macOS release details follow.
+
 Codex Usage Card is an **unofficial macOS add-on**. This page describes the **v0.9.4 Beta public release**, not a security guarantee for every computer, package, or future Codex release. This version has been installed and checked on one Mac: launch from the original Codex icon, automatic Ring display, usage readings and UI VERSION 53 all passed. Startup takes a few seconds longer than the previous version; this is a known experience difference. Other devices and future Codex versions remain unverified. The add-on has **not been Apple-notarized**.
 
 ## What it accesses

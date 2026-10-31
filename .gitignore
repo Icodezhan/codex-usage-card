@@ -1,0 +1,7 @@
+downloads/
+upstream/
+node_modules/
+*.log
+test-results/
+.installation-results/
+dist/

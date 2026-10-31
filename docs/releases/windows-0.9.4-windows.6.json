@@ -1,0 +1,39 @@
+{
+  "product": "Codex Usage Card",
+  "version": "0.9.4-windows.6",
+  "platform": "windows",
+  "architecture": "x64",
+  "archive": "CodexUsageCard-Windows-0.9.4-windows.6-x64.zip",
+  "archive_bytes": 34025277,
+  "archive_files": 16,
+  "sha256": "f2252f57d88307d2a21d3e70d2405fc27084cd13176b0231e3bc07aee6690e9f",
+  "node": {
+    "version": "v24.14.1",
+    "sha256": "58e74bf02fc5bbacc41dcb8bef089961cd5bddd37830b87784e4fc624d145d1f",
+    "authenticode_signer": "OpenJS Foundation",
+    "signature_checked_on": "2026-10-31",
+    "complete_license_included": true
+  },
+  "upstream": {
+    "repository": "https://github.com/Lorie7813/codex-usage-card",
+    "documentation_base_commit": "f1cc976",
+    "runtime_release": "v0.9.4-beta.1",
+    "runtime_archive_sha256": "e41cbb00fd01b785eb0cac73a946115a35dd2d9a2410c196ec7287ce4b1737f8"
+  },
+  "compatibility": {
+    "client_package": "OpenAI.Codex",
+    "client_version": "26.1027.3384.0",
+    "live_client_validated_on": "2026-10-30",
+    "package_validated_on": "2026-10-31",
+    "live_usage_and_sidebar": "verified",
+    "desktop_launcher_and_official_white_icon": "verified",
+    "archive_integrity_and_allowlist": "verified",
+    "bundled_runtime_permanent_copy": "verified",
+    "other_client_versions_and_computers": "unverified"
+  },
+  "entry_mode": "desktop-launcher",
+  "arbitrary_entry_autoload": false,
+  "automatic_updates": false,
+  "includes_user_data": false,
+  "binaries_committed_to_git": false
+}
