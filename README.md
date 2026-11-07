@@ -27,7 +27,7 @@
 
 ### macOS
 
-1. 从 [macOS `0.9.5-macos.1` 发布页](https://github.com/Icodezhan/codex-usage-card/releases/tag/v0.9.5-macos.1) 下载 `CodexUsageCard-macOS-0.9.5-macos.1.zip`。这是预发布版本，实际 Mac 安装和启动待验证。
+1. 从 [macOS `0.9.5-macos.1` 发布页](https://github.com/Icodezhan/codex-usage-card/releases/tag/v0.9.5-macos.1) 下载 `CodexUsageCard-macOS-0.9.5-macos.1.zip`。此版本已正式发布，并通过用户的 Mac 实机验证。
 2. 在下载目录运行以下命令，对照 `.zip.sha256` 文件中的哈希值。确认一致后完整解压 ZIP。
 
    ```bash
@@ -60,4 +60,4 @@
 Codex Usage Card adds remaining quota rings and local reset times to the Codex desktop sidebar. Choose your platform ZIP from [Releases](https://github.com/Icodezhan/codex-usage-card/releases), verify it against the accompanying `.zip.sha256` file, and extract the entire archive.
 
 - On **Windows x64**, run `Install.cmd`, quit Codex including its tray instance, then launch it using the **Codex Usage Card** desktop shortcut.
-- On **macOS**, run `安装.command` or `node manage.cjs install` with Node.js 24 or later. Quit Codex with **⌘Q** and reopen it from its original icon. This is a pre-release pending installation and launch verification on a Mac.
+- On **macOS**, run `安装.command` or `node manage.cjs install` with Node.js 24 or later. Quit Codex with **⌘Q** and reopen it from its original icon. This release has been verified by a user on a Mac.
