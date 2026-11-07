@@ -1,6 +1,6 @@
 # Windows 长期维护指南
 
-长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.12`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
+长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.14`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
 
 ## 维护边界
 
@@ -18,7 +18,7 @@
 - Windows x64 ZIP、运行时独立复制和回归测试于 2026-10-31 验证。其他电脑、其他客户端版本及 ARM64 尚未实际验证。
 - 上游文档基线提交为 `f1cc976`，来源为 `Lorie7813/codex-usage-card`。
 - 运行代码来源为上游 `v0.9.4-beta.1` Release 的可读 `agent.cjs`；原 ZIP SHA-256 为 `e41cbb00fd01b785eb0cac73a946115a35dd2d9a2410c196ec7287ce4b1737f8`。此公开上游仓库主要保存文档，单独更新 Git 文档不等于更新了运行代码。
-- 首个 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.12.json)。
+- 最新 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.14.json)。
 
 ## 从哪里定位问题
 
@@ -84,3 +84,9 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/bundled-runtime.ps
 当前本机选择使用启动后图标同步：启动时可能短暂显示客户端灰色图标，随后应用官方透明白色 logo。窗口和桌面额度入口使用 CodexUsageCard.Windows 分组，窗口重启命令复用既有桌面额度启动命令。不会修改官方程序或签名，不新增开始菜单入口；原始固定项仅在明确属于额度入口时关联额度分组。完整退出重开已由用户观察到灰色随后白色；此行为于 2026-10-31 获用户接受。
 
 windows.12 将桌面、后台启动及额度任务栏重启入口统一为 wscript.exe 隐藏入口，并为图标助手启用 CreateNoWindow，避免命令行窗口闪现。图标同步方式和额度功能保持不变。
+
+windows.13 / UI 54 增加原生侧边栏控件避让：额度卡仍在文档流中，空间不足或与原生按钮重叠时暂时隐藏，空间恢复后显示。新增真实浏览器回归覆盖更新按钮动态出现、独立按钮、绝对定位、样式/hidden 变化、短导航栏、单/双圆环切换和滚动裁剪。2026-11-04 核对本机客户端 26.1029.7803.0 导航结构；未触发真实客户端更新流程。现有分发 ZIP 的历史记录仍为 windows.12，本次先更新本机源码安装。
+
+windows.14 / UI 55 增加本地重置时分/月日标签。来源：NANAiiiii/codex-usage-card Windows 分支提交 `60cfd75eacc07bf2bdeeafb761570dbfea4f8495`，MIT 许可；保留项目原版权及许可证。回归覆盖上海/洛杉矶跨日、UTC 午夜、纽约夏令时切换、无效及过期数据清理与恢复，以及新增标签后的原生按钮避让。历史分发 ZIP 仍为 windows.12，本次更新本机源码安装。
+
+2026-11-04 已生成 windows.14 x64 分发 ZIP，包含签名有效的 Node.js 24.14.1 和完整许可证。ZIP CRC、17 项文件摘要、源码一致性、解压后执行以及中文/空格路径下的运行时永久复制测试通过。安装包入口为 Install.cmd，仍使用桌面 Codex Usage Card 启动；其他电脑的实际安装尚待验证。

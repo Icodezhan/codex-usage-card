@@ -11,6 +11,60 @@ test('Plus renders independent five-hour and weekly remaining allowances', () =>
   assert.equal(result.mode, 'dual');
   assert.deepEqual(result.rings.map(r => r.percent), [95, 53]);
 });
+
+test('reset labels show local HH:mm and MM-DD, retaining full tooltip times', () => {
+  const data = { rateLimits: { planType: 'plus',
+    primary: { usedPercent: 5, windowDurationMins: 300, resetsAt: new Date(2026,10,9,18,30).getTime()/1000 },
+    secondary: { usedPercent: 47, windowDurationMins: 10080, resetsAt: new Date(2026,10,10,8,5).getTime()/1000 } } };
+  const value = formatRateLimits(data);
+  assert.deepEqual(value.rings.map(r => r.resetText), ['18:30', '11-10']);
+  assert.match(value.rings[1].title, /08:05/);
+  assert.equal(value.resetText, '18:30');
+  data.rateLimits.planType = 'pro';
+  assert.equal(formatRateLimits(data).resetText, '11-10');
+});
+
+test('reset labels follow the computer timezone across midnight and DST', () => {
+  const { execFileSync } = require('node:child_process');
+  const script = `const {formatRateLimits}=require(${JSON.stringify(require.resolve('../agent.cjs'))});
+    console.log(JSON.stringify(process.argv.slice(1).map(iso => {
+      const resetsAt=Date.parse(iso)/1000;
+      return formatRateLimits({rateLimits:{planType:'plus',
+        primary:{usedPercent:0,windowDurationMins:300,resetsAt},
+        secondary:{usedPercent:0,windowDurationMins:10080,resetsAt}}}).rings.map(r=>r.resetText);
+    })));`;
+  for (const [tz, dates, expected] of [
+    ['Asia/Shanghai', ['2026-11-09T23:30:00Z'], [['07:30','11-10']]],
+    ['America/Los_Angeles', ['2026-11-09T23:30:00Z'], [['15:30','11-09']]],
+    ['UTC', ['2026-11-09T00:05:00Z'], [['00:05','11-09']]],
+    ['America/New_York', ['2026-03-08T06:30:00Z','2026-03-08T07:30:00Z'], [['01:30','03-08'],['03:30','03-08']]]
+  ]) {
+    const output = execFileSync(process.execPath, ['-e',script,...dates], {
+      env:{...process.env,TZ:tz}, encoding:'utf8', windowsHide:true });
+    assert.deepEqual(JSON.parse(output), expected, tz);
+  }
+});
+
+test('missing, invalid, unavailable and stale reset data cannot retain old labels', () => {
+  const snapshot = resetsAt => ({ rateLimits: { planType:'plus',
+    primary:{usedPercent:0,windowDurationMins:300,resetsAt},
+    secondary:{usedPercent:0,windowDurationMins:10080,resetsAt} } });
+  for (const resetsAt of [undefined,null,0,-1,NaN,Infinity,1e30,'1800000000']) {
+    const value = formatRateLimits(snapshot(resetsAt));
+    assert.equal(value.resetText, null);
+    assert.deepEqual(value.rings.map(r=>r.resetText), [null,null]);
+  }
+  const data = snapshot(1800000000);
+  delete data.rateLimits.primary.usedPercent;
+  assert.equal(formatRateLimits(data).rings[0].resetText, null);
+  const fresh = formatRateLimits(snapshot(1800000000));
+  const stale = unavailableValue(fresh);
+  assert.equal(stale.resetText, null);
+  assert.deepEqual(stale.rings.map(r=>r.resetText), [null,null]);
+  const changed = mergeRateLimitsResponse({accountId:'old',...snapshot(1800000000)},
+    {accountId:'new', rateLimits:{planType:'plus',primary:{usedPercent:0,windowDurationMins:300}}});
+  assert.deepEqual(formatRateLimits(changed).rings.map(r=>r.resetText), [null,null]);
+});
 test('account changes cannot reuse a previous account weekly window', () => {
   const result = mergeRateLimitsResponse({ accountId: 'old', rateLimits: {
     primary: { usedPercent: 12, windowDurationMins: 300 }, secondary: { usedPercent: 42, windowDurationMins: 10080 }

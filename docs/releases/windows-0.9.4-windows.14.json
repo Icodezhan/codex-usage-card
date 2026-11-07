@@ -1,0 +1,32 @@
+{
+  "version": "0.9.4-windows.14",
+  "date": "2026-11-04",
+  "archive": "CodexUsageCard-Windows-0.9.4-windows.14-x64.zip",
+  "bytes": 34032225,
+  "sha256": "253f9d5661b78f497e6b4e3beef424787c1d093f0a8c6b340e5cc6d7afaf49fd",
+  "platform": "windows",
+  "architecture": "x64",
+  "node": {
+    "version": "v24.14.1",
+    "authenticode": "Valid, OpenJS Foundation"
+  },
+  "changes": [
+    "Local five-hour HH:mm and weekly MM-DD reset labels",
+    "Native sidebar update-button clearance",
+    "Clear reset labels for unavailable or stale quota"
+  ],
+  "verification": {
+    "core_tests": "10 passed",
+    "browser_tests": "passed: reset labels, layout, expiry, native update-button clearance",
+    "zip_crc": "passed",
+    "file_checksums": "17 payload digests passed",
+    "archive_entry_count": 18,
+    "source_equality": "all allowlisted source files byte-identical",
+    "bundled_runtime": "passed: permanent copy, Unicode/spaces, in-place reinstall and source checkout",
+    "extracted_package_execution": "passed: syntax, local reset labels and signed Node runtime",
+    "live_client": "26.1029.7803.0, UI 55 and local reset labels verified on this computer",
+    "actual_client_update_installation": "not exercised",
+    "another_computer_installation": "not yet verified"
+  },
+  "includes_user_data": false
+}

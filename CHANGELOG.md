@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.9.4-windows.14 (local reset-time labels, 2026-11-04)
+
+- Show five-hour reset time as HH:mm and weekly reset date as MM-DD below the quota labels, using the computer's local timezone.
+- Adapt the reset labels and subtle background tags from [NANAiiiii's Windows fork](https://github.com/NANAiiiii/codex-usage-card/tree/60cfd75eacc07bf2bdeeafb761570dbfea4f8495/windows) (MIT). Retain full reset timestamps in hover details.
+- Clear reset labels for missing/invalid data, unavailable quota and expired snapshots. Keep native update-button clearance with the taller card. UI component version: 55.
+- Verify timezone rollover, 24-hour formatting, daylight saving changes, stale-data recovery and browser layout.
+
+## 0.9.4-windows.13 (preserve native sidebar controls, 2026-11-04)
+
+- Keep the quota card in normal flow before the native footer, including its update button.
+- Hide the card when it would overlap a native control, push the footer outside the visible rail, or leave less than one navigation row; restore it when space returns.
+- React to native footer size changes and class/style/hidden changes. Ignore clipped scroll-list content when checking overlaps. UI component version: 54.
+- Real Chromium regression checks cover dynamic update buttons, small windows, automatic recovery, and single/dual quota layouts.
+
 ## 0.9.4-windows.12 (hide launcher consoles, 2026-10-31)
 
 - Use the GUI Windows Script Host as the desktop, Startup and owned taskbar entry, creating PowerShell hidden from launch.
