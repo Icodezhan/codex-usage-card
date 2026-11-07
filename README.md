@@ -1,5 +1,19 @@
 # Codex Usage Card
 
+## macOS fork build
+
+On the `macos` branch, build `0.9.5-macos.1` to show the five-hour reset time (`18:30`) and weekly reset date (`11-10`) under the rings in the Mac's local time zone. Missing or stale readings show `—`.
+
+Download the original `CodexUsageCard-macOS-0.9.5.zip` from the [upstream v0.9.5 Beta release](https://github.com/Lorie7813/codex-usage-card/releases/tag/v0.9.5-beta.1), then build the fork ZIP with Python 3.9 or newer. The script checks the pinned upstream digest and preserves the macOS helper and entry scripts.
+
+```bash
+python3 scripts/package_macos.py /path/to/CodexUsageCard-macOS-0.9.5.zip
+```
+
+Extract `dist/CodexUsageCard-macOS-0.9.5-macos.1.zip` on a Mac and run `安装.command` or `node manage.cjs install` from the extracted folder. This fork build uses UI56. Its labels and layout were tested in Node.js and Chromium. Installation and launch on a Mac are pending verification.
+
+The remainder of this README describes the upstream releases.
+
 **Track your Codex usage directly in the sidebar.**
 
 Codex Usage Card is an **unofficial macOS add-on** for the Codex desktop app. It displays your remaining usage allowance as compact progress rings in the sidebar, without adding a separate app icon.
