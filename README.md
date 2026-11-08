@@ -12,11 +12,11 @@
 
 ### Windows 10/11 x64
 
-1. 从 [Windows `0.9.4-windows.14` 发布页](https://github.com/Icodezhan/codex-usage-card/releases/tag/v0.9.4-windows.14) 下载 `CodexUsageCard-Windows-0.9.4-windows.14-x64.zip`。安装包内置 Node.js 24.14.1。
+1. 从 [Windows `0.9.4-windows.15` 发布页](https://github.com/Icodezhan/codex-usage-card/releases/tag/v0.9.4-windows.15) 下载 `CodexUsageCard-Windows-0.9.4-windows.15-x64.zip`。安装包内置 Node.js 24.14.1。
 2. 在下载目录运行以下 PowerShell 命令，对照 `.zip.sha256` 文件中的哈希值。确认一致后完整解压 ZIP。
 
    ```powershell
-   Get-FileHash -Algorithm SHA256 -LiteralPath '.\CodexUsageCard-Windows-0.9.4-windows.14-x64.zip'
+   Get-FileHash -Algorithm SHA256 -LiteralPath '.\CodexUsageCard-Windows-0.9.4-windows.15-x64.zip'
    ```
 
 3. 双击解压目录中的 `Install.cmd`，等待安装成功。
