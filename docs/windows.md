@@ -1,6 +1,6 @@
 # Windows 安装与使用
 
-这是基于上游 v0.9.4 Beta 的本地 Windows 适配版 `0.9.4-windows.14`，不是上游发布的 Windows Release，也不是 OpenAI 官方插件。
+这是基于上游 v0.9.4 Beta 的非官方 Windows 适配版 `0.9.4-windows.15`。
 
 ## 环境与安装
 

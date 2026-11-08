@@ -222,7 +222,7 @@ switch ($Action) {
             foreach ($file in @('agent.cjs','manage.cjs','LICENSE')) { Copy-Item -LiteralPath (Join-Path $SourceRoot $file) -Destination $InstallRoot -Force }
             foreach ($file in @('manage.ps1','runner.cjs','entry.vbs','doctor.cjs','icon.ps1','window-icon.ps1','WindowIconGuard.cs')) { Copy-Item -LiteralPath (Join-Path $PSScriptRoot $file) -Destination (Join-Path $InstallRoot 'windows') -Force }
         }
-        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.14'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
+        Save-Json $ManifestPath ([ordered]@{ product=$Product; version='0.9.4-windows.15'; installRoot=$InstallRoot; node=$NodePath; entryMode='desktop-launcher'; installedAt=(Get-Date).ToUniversalTime().ToString('o') })
         $entry = '-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + (Join-Path $InstallRoot 'windows\manage.ps1') + '"'
         $powershell = Join-Path $env:WINDIR 'System32\WindowsPowerShell\v1.0\powershell.exe'
         $hostPath=Join-Path $env:WINDIR 'System32\wscript.exe'

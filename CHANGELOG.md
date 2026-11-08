@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.4-windows.15 (2026-11-08)
+
+- Hide the quota card and its tooltip while a native sidebar menu such as the profile menu is open. Recheck the available space when the menu closes. UI component version 56.
+
 ## 0.9.4-windows.14 (local reset-time labels, 2026-11-04)
 
 - Show five-hour reset time as HH:mm and weekly reset date as MM-DD below the quota labels, using the computer's local timezone.

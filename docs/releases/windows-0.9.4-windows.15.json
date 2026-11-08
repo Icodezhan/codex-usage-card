@@ -1,0 +1,24 @@
+{
+  "version": "0.9.4-windows.15",
+  "date": "2026-11-08",
+  "archive": "CodexUsageCard-Windows-0.9.4-windows.15-x64.zip",
+  "bytes": 34032504,
+  "sha256": "ec953bc42cb044b8dd88221367c75f92621992d6fe2bec68668d491c768130bf",
+  "platform": "windows",
+  "architecture": "x64",
+  "node": {
+    "version": "v24.14.1",
+    "authenticode": "Valid, OpenJS Foundation"
+  },
+  "changes": [
+    "Hide the quota card and tooltip while a native sidebar menu is open",
+    "Restore the card after the menu closes and recheck available space"
+  ],
+  "verification": {
+    "core_tests": "10 passed",
+    "browser_tests": "passed: avatar menu hide, refresh while hidden, recovery, and existing layout regression",
+    "package": "CRC, all payload hashes, source equality, extracted agent syntax and bundled runtime copy passed",
+    "live_client": "OpenAI.Codex 26.1103.4239.0, UI 56. User verified avatar menu hide and restore on this computer."
+  },
+  "includes_user_data": false
+}

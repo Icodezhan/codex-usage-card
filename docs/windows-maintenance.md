@@ -1,6 +1,6 @@
 # Windows 长期维护指南
 
-长期维护分支为 `codex/windows-maintenance`，当前基线为 `0.9.4-windows.14`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
+长期维护分支为 `windows`，当前基线为 `0.9.4-windows.15`。本项目依赖 Codex/ChatGPT 客户端内部接口，客户端升级后需要按本文重新验证；未验证的版本不能直接标记兼容。
 
 ## 维护边界
 
@@ -18,7 +18,7 @@
 - Windows x64 ZIP、运行时独立复制和回归测试于 2026-10-31 验证。其他电脑、其他客户端版本及 ARM64 尚未实际验证。
 - 上游文档基线提交为 `f1cc976`，来源为 `Lorie7813/codex-usage-card`。
 - 运行代码来源为上游 `v0.9.4-beta.1` Release 的可读 `agent.cjs`；原 ZIP SHA-256 为 `e41cbb00fd01b785eb0cac73a946115a35dd2d9a2410c196ec7287ce4b1737f8`。此公开上游仓库主要保存文档，单独更新 Git 文档不等于更新了运行代码。
-- 最新 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.14.json)。
+- 最新 Windows 分发包的文件名、摘要和验证范围记录在 [Windows Release 记录](releases/windows-0.9.4-windows.15.json)。
 
 ## 从哪里定位问题
 

@@ -17,7 +17,7 @@ const value = formatRateLimits({ rateLimits: { planType: 'plus',
   secondary: { usedPercent: 47, windowDurationMins: 10080, resetsAt:new Date(2026,10,10,8,5).getTime()/1000 } } });
 fs.writeFileSync(fixture, `<!doctype html><html><head><meta charset="utf-8"><style>
 html,body{margin:0;height:100%;font-family:'Segoe UI',sans-serif}nav{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;box-sizing:border-box;padding:8px;width:54px;height:850px;background:#eee}main{flex:1;min-height:0;overflow:auto;width:36px}footer{display:flex;flex-direction:column;gap:8px;flex-shrink:0}button{box-sizing:border-box;width:36px;height:36px;flex-shrink:0;padding:0}
-</style></head><body><nav data-app-navigation-rail><main><button>Home</button></main><footer><button>Usage</button><button>Profile</button></footer></nav><script>
+</style></head><body><nav data-app-navigation-rail><main><button>Home</button></main><footer><button>Usage</button><button id="profile" aria-haspopup="menu" aria-expanded="false">Profile</button></footer></nav><script>
 (async () => {
 const checks = {};
 const waitForPlacement = () => new Promise(resolve => setTimeout(resolve, 250));
@@ -44,6 +44,20 @@ window.__codexUsageBadge.update({stale:true});
 checks.staleLabelsCleared = resetLabels().every(text=>text==='—');
 window.__codexUsageBadge.update(${JSON.stringify({ ...value, updatedAt: Date.now(), stale: false })});
 checks.labelsRecovered = JSON.stringify(resetLabels()) === JSON.stringify(['18:30','11-10']);
+const profile = document.querySelector('#profile');
+const tooltip = document.querySelector('#codex-usage-tooltip');
+profile.addEventListener('click', () => profile.setAttribute('aria-expanded', 'true'));
+badge.dispatchEvent(new MouseEvent('mouseenter'));
+await new Promise(resolve => setTimeout(resolve, 400));
+checks.tooltipBeforeProfile = !tooltip.hidden;
+profile.click();
+await Promise.resolve();
+checks.profileMenuHidesImmediately = badge.hidden && tooltip.hidden && canHit(profile);
+window.__codexUsageBadge.update({updatedAt:Date.now()});
+checks.profileMenuStaysHiddenOnRefresh = badge.hidden && tooltip.hidden;
+profile.setAttribute('aria-expanded', 'false');
+await waitForPlacement();
+checks.profileMenuRestoresCard = !badge.hidden && tooltip.hidden && JSON.stringify(resetLabels()) === JSON.stringify(['18:30','11-10']);
 const update = document.createElement('button');
 update.textContent = 'Update';
 footer.prepend(update);
@@ -110,7 +124,7 @@ try {
   if (result.error || !result.stdout?.includes('data-smoke-result="PASS"')) {
     console.error(result.stdout?.match(/<\/script>([\s\S]*)<\/body>/)?.[1] || result.error?.message || result.stderr || `Browser exited ${result.status} without returning a DOM. Try EDGE_BIN with a working Chromium executable.`);
     process.exitCode = 1;
-  } else console.log('PASS: real Chromium rendering, update-button clearance, short-rail fallback/recovery, dynamic styles, single/dual layout, singleton, expiry and cleanup.');
+  } else console.log('PASS: real Chromium rendering, profile menu hide/recovery, update-button clearance, short-rail fallback/recovery, dynamic styles, single/dual layout, singleton, expiry and cleanup.');
 } finally {
   // The target is created above by mkdtemp, never a user-supplied path.
   try {

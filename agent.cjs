@@ -197,7 +197,7 @@ class AppServerClient extends require('node:events').EventEmitter {
 }
 
 function installUsageBadge() {
-  const VERSION = 55;
+  const VERSION = 56;
   const KEY = '__codexUsageBadge';
   if (window[KEY]?.version === VERSION) {
     window[KEY].place();
@@ -370,6 +370,15 @@ function installUsageBadge() {
     hoverTimer = null;
     tooltip.hidden = true;
   }
+  function hideForOpenRailMenu() {
+    // The native trigger tracks the menu even when its content is portaled outside the rail.
+    const openTriggers = rail?.querySelectorAll('[aria-haspopup="menu"][aria-expanded="true"]');
+    if (!openTriggers || !Array.from(openTriggers).some(visible)) return false;
+    placementReason = 'native-menu-open';
+    badge.hidden = true;
+    hideTooltip();
+    return true;
+  }
   function positionTooltip() {
     const r = badge.getBoundingClientRect();
     const ringRect = primaryMeter.querySelector('.usage-ring').getBoundingClientRect();
@@ -379,7 +388,7 @@ function installUsageBadge() {
   }
   function showTooltip() {
     clearTimeout(hoverTimer);
-    if (!visible(badge) || document.hidden || disposed) return;
+    if (disposed || document.hidden || hideForOpenRailMenu() || !visible(badge)) return;
     tooltip.hidden = false;
     positionTooltip();
   }
@@ -513,6 +522,7 @@ function installUsageBadge() {
       rail = nextRail ?? null;
       if (rail) resizeObserver.observe(rail);
     }
+    if (hideForOpenRailMenu()) return;
     // Keep native update/usage/profile controls in their own React-owned layout.
     const siblings = rail ? [...rail.children].filter(el => {
       const css = getComputedStyle(el);
@@ -573,11 +583,12 @@ function installUsageBadge() {
     placementTimer = setTimeout(() => { placementTimer = null; place(); }, 100);
   }
   const observer = new MutationObserver(records => {
-    if (records.some(r => !badge.contains(r.target) && !tooltip.contains(r.target) && r.target !== style)) schedulePlacement();
+    if (!records.some(r => !badge.contains(r.target) && !tooltip.contains(r.target) && r.target !== style)) return;
+    if (!hideForOpenRailMenu()) schedulePlacement();
   });
   const resizeObserver = new ResizeObserver(schedulePlacement);
   observer.observe(document.documentElement, { childList: true, subtree: true,
-    attributes: true, attributeFilter: ['class', 'style', 'hidden'] });
+    attributes: true, attributeFilter: ['class', 'style', 'hidden', 'aria-haspopup', 'aria-expanded'] });
   badge.addEventListener('mouseenter', scheduleTooltip);
   badge.addEventListener('mouseleave', hideTooltip);
   badge.addEventListener('focus', showTooltip);
@@ -727,7 +738,7 @@ function windowsCodexCandidates(appPath) {
     path.join(root, 'resources', 'codex-cli', 'codex.exe')];
 }
 
-var AGENT_VERSION = '0.9.4-windows.14';
+var AGENT_VERSION = '0.9.4-windows.15';
 
 function parseArgs(argv) {
   const options = {
